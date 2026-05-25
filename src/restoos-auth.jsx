@@ -1677,7 +1677,7 @@ export default function ReStooSAuth({ onEnterPlatform }) {
       <RestaurantPortal
         user={currentUser}
         onLogout={handleLogout}
-        onEnterPlatform={onEnterPlatform}
+        onEnterPlatform={() => onEnterPlatform(currentUser)}
         isMobile={isMobile}
       />
     );

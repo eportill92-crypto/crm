@@ -56,6 +56,61 @@ const THEMES = {
   }
 };
 
+// ─── Role-Based Access Control ────────────────────────────────────────────────
+const ROLE_MODULES = {
+  owner:   ['dashboard','crm','menu','compras','reporteo','ia-ops','inventario','whatsapp','reputacion','copilot','marca'],
+  manager: ['dashboard','crm','menu','compras','reporteo','inventario','whatsapp','reputacion','copilot'],
+  staff:   ['dashboard','menu','compras','inventario'],
+};
+
+const ROLE_LABELS = { owner:'Dueño', manager:'Gerente', staff:'Staff' };
+
+// What each role can DO within visible modules
+const ROLE_PERMS = {
+  owner: {
+    canApproveOrders: true,    // Compras: approve/reject purchase orders
+    canCreateOrders: true,     // Compras: create new requests
+    canEditMenu: true,         // Menú: add/edit/delete dishes and categories
+    canDeleteDishes: true,
+    canAdjustInventory: true,  // Inventario: stock adjustment modal
+    canSolicitarInventory: true,
+    canEditCampaigns: true,    // CRM: create/manage campaigns
+    canRespondReviews: true,   // Reputación: respond to reviews
+    canViewReports: true,      // Reporteo: all report tabs
+    canEditBrand: true,        // Mi Marca: full theming
+    canManageAutomations: true,// WhatsApp: toggle automations
+    canSendMessages: true,
+  },
+  manager: {
+    canApproveOrders: false,   // Only owner can approve/reject
+    canCreateOrders: true,
+    canEditMenu: true,         // Can edit dishes but not delete
+    canDeleteDishes: false,
+    canAdjustInventory: false, // Cannot adjust stock counts
+    canSolicitarInventory: true,
+    canEditCampaigns: false,   // Read-only CRM
+    canRespondReviews: true,
+    canViewReports: true,
+    canEditBrand: false,
+    canManageAutomations: false,
+    canSendMessages: true,
+  },
+  staff: {
+    canApproveOrders: false,
+    canCreateOrders: true,     // Can request, not approve
+    canEditMenu: false,        // Read-only menu (can toggle availability)
+    canDeleteDishes: false,
+    canAdjustInventory: false,
+    canSolicitarInventory: true,
+    canEditCampaigns: false,
+    canRespondReviews: false,
+    canViewReports: false,
+    canEditBrand: false,
+    canManageAutomations: false,
+    canSendMessages: true,
+  },
+};
+
 // ─── Shared helpers ───────────────────────────────────────────────────────────
 function injectStyles() {
   if (!document.getElementById('ros-styles')) {
@@ -245,7 +300,7 @@ const BOTTOM_NAV = ['dashboard','menu','compras','reporteo','copilot'];
 // ════════════════════════════════════════════════════════════════════════════════
 // MODULE: DASHBOARD
 // ════════════════════════════════════════════════════════════════════════════════
-function ModuleDashboard({ theme, addToast }) {
+function ModuleDashboard({ theme, addToast, perms }) {
   const T = theme.palette; const R = theme.borderRadius;
   const fmt = v => '$' + v.toLocaleString('es-MX');
   const kpis = [
@@ -323,7 +378,11 @@ function ModuleDashboard({ theme, addToast }) {
         {alerts.map((a,i) => (
           <div key={i} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'12px 0',borderBottom:i<alerts.length-1?`1px solid ${T.border}`:'none',gap:12,flexWrap:'wrap'}}>
             <div style={{color:T.text,fontSize:14,fontFamily:theme.fontBody,flex:1}}>{a.text}</div>
-            <Btn theme={theme} variant="secondary" small onClick={()=>addToast('Acción ejecutada','success')}>Actuar</Btn>
+            {perms?.canApproveOrders !== false ? (
+              <Btn theme={theme} variant="secondary" small onClick={()=>addToast('Acción ejecutada','success')}>Actuar</Btn>
+            ) : (
+              <span style={{color:T.textSecondary,fontSize:12}}>Sin permisos</span>
+            )}
           </div>
         ))}
       </Card>
@@ -334,7 +393,7 @@ function ModuleDashboard({ theme, addToast }) {
 // ════════════════════════════════════════════════════════════════════════════════
 // MODULE: CRM
 // ════════════════════════════════════════════════════════════════════════════════
-function ModuleCRM({ theme, addToast, isMobile }) {
+function ModuleCRM({ theme, addToast, isMobile, perms }) {
   const T = theme.palette; const R = theme.borderRadius;
   const [tab, setTab] = useState('clients');
   const [recoverModal, setRecoverModal] = useState(null);
@@ -411,7 +470,9 @@ function ModuleCRM({ theme, addToast, isMobile }) {
       {tab === 'campaigns' && (
         <div>
           <div style={{display:'flex',justifyContent:'flex-end',marginBottom:14}}>
-            <Btn theme={theme} onClick={()=>addToast('Próximamente: constructor de campañas','info')}><Plus size={14}/> Nueva Campaña</Btn>
+            {perms?.canEditCampaigns !== false && (
+              <Btn theme={theme} onClick={()=>addToast('Próximamente: constructor de campañas','info')}><Plus size={14}/> Nueva Campaña</Btn>
+            )}
           </div>
           <Card theme={theme} style={{overflowX:'auto',padding:0}}>
             <table style={{width:'100%',borderCollapse:'collapse',fontFamily:theme.fontBody}}>
@@ -491,7 +552,7 @@ function ModuleCRM({ theme, addToast, isMobile }) {
 // ════════════════════════════════════════════════════════════════════════════════
 // MODULE: MENÚ & QR
 // ════════════════════════════════════════════════════════════════════════════════
-function ModuleMenu({ theme, addToast, isMobile }) {
+function ModuleMenu({ theme, addToast, isMobile, perms }) {
   const T = theme.palette; const R = theme.borderRadius;
   const [selectedCat, setSelectedCat] = useState('all');
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -551,9 +612,16 @@ function ModuleMenu({ theme, addToast, isMobile }) {
         <h2 style={{color:T.text,fontFamily:theme.font,fontSize:26,fontWeight:700,margin:0}}>Menú & QR</h2>
         <div style={{display:'flex',gap:10}}>
           <Btn theme={theme} variant="secondary" onClick={()=>setPreviewOpen(true)}><Eye size={14}/> Vista previa</Btn>
-          <Btn theme={theme} onClick={openNew}><Plus size={14}/> Nuevo platillo</Btn>
+          {perms?.canEditMenu !== false && (
+            <Btn theme={theme} onClick={openNew}><Plus size={14}/> Nuevo platillo</Btn>
+          )}
         </div>
       </div>
+      {perms?.canEditMenu === false && (
+        <div style={{background:`${T.warning}15`,border:`1px solid ${T.warning}40`,borderRadius:R,padding:'10px 16px',marginBottom:16,color:T.warning,fontFamily:theme.fontBody,fontSize:13}}>
+          Modo lectura — contacta al gerente para editar el menú
+        </div>
+      )}
 
       {/* Category chips */}
       <div style={{display:'flex',gap:8,overflowX:'auto',marginBottom:20,paddingBottom:4}}>
@@ -2003,7 +2071,7 @@ function ModuleMarca({ theme, setTheme, addToast, isMobile }) {
 // ════════════════════════════════════════════════════════════════════════════════
 // MAIN SHELL
 // ════════════════════════════════════════════════════════════════════════════════
-export default function RestaurantOS({ onLogout }) {
+export default function RestaurantOS({ onLogout, user }) {
   const [theme, setTheme] = useState(THEMES.esca);
   const [activeModule, setActiveModule] = useState('dashboard');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -2012,6 +2080,15 @@ export default function RestaurantOS({ onLogout }) {
   const [pendingOrders, setPendingOrders] = useState(2);
   const [themeMenuOpen, setThemeMenuOpen] = useState(false);
   const { toasts, addToast } = useToasts();
+
+  const role = user?.role || 'staff';
+  const perms = ROLE_PERMS[role] || ROLE_PERMS.staff;
+  const allowedMods = ROLE_MODULES[role] || ROLE_MODULES.staff;
+
+  // If current module is not allowed for this role, reset to dashboard
+  useEffect(() => {
+    if (!allowedMods.includes(activeModule)) setActiveModule('dashboard');
+  }, []); // eslint-disable-line
 
   useEffect(() => {
     injectStyles();
@@ -2023,13 +2100,16 @@ export default function RestaurantOS({ onLogout }) {
   const T = theme.palette; const R = theme.borderRadius;
   const sidebarW = sidebarCollapsed ? 64 : 240;
 
+  const visibleNav = NAV.filter(n => allowedMods.includes(n.id));
+  const visibleBottomNav = BOTTOM_NAV.filter(id => allowedMods.includes(id));
+
   const navigate = (id) => {
     setActiveModule(id);
     if (isMobile) setMobileDrawerOpen(false);
   };
 
   const renderModule = () => {
-    const props = { theme, addToast, isMobile };
+    const props = { theme, addToast, isMobile, perms };
     switch (activeModule) {
       case 'dashboard': return <ModuleDashboard {...props}/>;
       case 'crm': return <ModuleCRM {...props}/>;
@@ -2078,7 +2158,7 @@ export default function RestaurantOS({ onLogout }) {
         </>}
       </div>
       <nav style={{ flex: 1, padding: '8px 0', overflowY: 'auto' }}>
-        {NAV.map(item => <NavItem key={item.id} item={item} collapsed={collapsed}/>)}
+        {visibleNav.map(item => <NavItem key={item.id} item={item} collapsed={collapsed}/>)}
       </nav>
       <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', padding: collapsed ? '12px 0' : '14px 16px' }}>
         {!collapsed && <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 13, fontFamily: theme.fontBody, marginBottom: 10 }}>Ana García<br/><span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Dueño · ESCA</span></div>}
@@ -2147,7 +2227,7 @@ export default function RestaurantOS({ onLogout }) {
       {/* Mobile Bottom Nav */}
       {isMobile && (
         <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, height: 60, background: T.bgCard, borderTop: `1px solid ${T.border}`, display: 'flex', zIndex: 150, paddingBottom: 'env(safe-area-inset-bottom)' }}>
-          {BOTTOM_NAV.map(id => {
+          {visibleBottomNav.map(id => {
             const item = NAV.find(n => n.id === id);
             if (!item) return null;
             const active = activeModule === id;

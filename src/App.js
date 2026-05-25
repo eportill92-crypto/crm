@@ -28,12 +28,13 @@ function LoadingScreen() {
 
 export default function App() {
   const [screen, setScreen] = useState('auth'); // 'auth' | 'platform'
+  const [currentUser, setCurrentUser] = useState(null);
 
   return (
     <Suspense fallback={<LoadingScreen />}>
       {screen === 'auth'
-        ? <ReStooSAuth onEnterPlatform={() => setScreen('platform')} />
-        : <RestaurantOS onLogout={() => setScreen('auth')} />
+        ? <ReStooSAuth onEnterPlatform={(user) => { setCurrentUser(user); setScreen('platform'); }} />
+        : <RestaurantOS user={currentUser} onLogout={() => { setCurrentUser(null); setScreen('auth'); }} />
       }
     </Suspense>
   );
