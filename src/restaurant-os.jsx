@@ -633,7 +633,9 @@ function ModuleMenu({ theme, addToast, isMobile, perms }) {
             whiteSpace:'nowrap',transition:'all 0.15s',
           }}>{c.emoji} {c.name}</button>
         ))}
-        <button onClick={()=>setCatModal(true)} style={{background:'transparent',border:`1px dashed ${T.border}`,borderRadius:100,padding:'7px 14px',cursor:'pointer',color:T.textSecondary,fontSize:13,whiteSpace:'nowrap',fontFamily:theme.fontBody}}>+ Añadir</button>
+        {perms?.canEditMenu !== false && (
+          <button onClick={()=>setCatModal(true)} style={{background:'transparent',border:`1px dashed ${T.border}`,borderRadius:100,padding:'7px 14px',cursor:'pointer',color:T.textSecondary,fontSize:13,whiteSpace:'nowrap',fontFamily:theme.fontBody}}>+ Añadir</button>
+        )}
       </div>
 
       {/* Dishes grid */}
@@ -654,8 +656,12 @@ function ModuleMenu({ theme, addToast, isMobile, perms }) {
                 <button onClick={()=>setDishes(p=>p.map(x=>x.id===d.id?{...x,available:!x.available}:x))} style={{background:d.available?'rgba(76,175,80,0.12)':'rgba(239,83,80,0.1)',border:'none',borderRadius:100,padding:'4px 10px',cursor:'pointer',fontSize:11,fontWeight:700,color:d.available?T.success:T.danger,fontFamily:theme.fontBody}}>
                   {d.available?'● Activo':'○ Inactivo'}
                 </button>
-                <button onClick={()=>openEdit(d)} style={{background:T.accentLight,border:'none',borderRadius:6,padding:'6px 8px',cursor:'pointer',color:T.accent}}><Edit2 size={13}/></button>
-                <button onClick={()=>setDeleteId(d.id)} style={{background:'rgba(192,57,43,0.1)',border:'none',borderRadius:6,padding:'6px 8px',cursor:'pointer',color:T.danger}}><Trash2 size={13}/></button>
+                {perms?.canEditMenu !== false && (
+                  <button onClick={()=>openEdit(d)} style={{background:T.accentLight,border:'none',borderRadius:6,padding:'6px 8px',cursor:'pointer',color:T.accent}}><Edit2 size={13}/></button>
+                )}
+                {perms?.canDeleteDishes !== false && (
+                  <button onClick={()=>setDeleteId(d.id)} style={{background:'rgba(192,57,43,0.1)',border:'none',borderRadius:6,padding:'6px 8px',cursor:'pointer',color:T.danger}}><Trash2 size={13}/></button>
+                )}
               </div>
             </div>
           </Card>
@@ -762,7 +768,7 @@ function ModuleMenu({ theme, addToast, isMobile, perms }) {
 // ════════════════════════════════════════════════════════════════════════════════
 // MODULE: COMPRAS
 // ════════════════════════════════════════════════════════════════════════════════
-function ModuleCompras({ theme, addToast, isMobile, onPendingChange }) {
+function ModuleCompras({ theme, addToast, isMobile, onPendingChange, perms }) {
   const T = theme.palette; const R = theme.borderRadius;
   const [tab, setTab] = useState('orders');
   const [orders, setOrders] = useState([
@@ -863,8 +869,14 @@ function ModuleCompras({ theme, addToast, isMobile, onPendingChange }) {
                   <div style={{color:T.text,fontFamily:theme.font,fontSize:22,fontWeight:700}}>${o.total.toLocaleString()}</div>
                   {o.status === 'pending' && (
                     <div style={{display:'flex',gap:8,marginTop:8,justifyContent:'flex-end'}}>
-                      <Btn theme={theme} small variant="ghost" onClick={()=>reject(o)}>✕ Rechazar</Btn>
-                      <Btn theme={theme} small onClick={()=>approve(o)}>✓ Aprobar</Btn>
+                      {perms?.canApproveOrders !== false ? (
+                        <>
+                          <Btn theme={theme} small variant="ghost" onClick={()=>reject(o)}>✕ Rechazar</Btn>
+                          <Btn theme={theme} small onClick={()=>approve(o)}>✓ Aprobar</Btn>
+                        </>
+                      ) : (
+                        <span style={{color:T.textSecondary,fontSize:12}}>Requiere aprobación del dueño</span>
+                      )}
                     </div>
                   )}
                   {o.status === 'approved' && <Btn theme={theme} small variant="secondary" onClick={()=>setEmailModal(o)}><Mail size={13}/> Ver email</Btn>}
@@ -942,7 +954,7 @@ function ModuleCompras({ theme, addToast, isMobile, onPendingChange }) {
 // ════════════════════════════════════════════════════════════════════════════════
 // MODULE: REPORTEO
 // ════════════════════════════════════════════════════════════════════════════════
-function ModuleReporteo({ theme, addToast, isMobile }) {
+function ModuleReporteo({ theme, addToast, isMobile, perms }) {
   const T = theme.palette; const R = theme.borderRadius;
   const [range, setRange] = useState('30d');
   const [tab, setTab] = useState('resumen');
@@ -1207,7 +1219,7 @@ function ModuleReporteo({ theme, addToast, isMobile }) {
 // ════════════════════════════════════════════════════════════════════════════════
 // MODULE: IA OPERATIVA
 // ════════════════════════════════════════════════════════════════════════════════
-function ModuleIAOps({ theme, addToast }) {
+function ModuleIAOps({ theme, addToast, perms }) {
   const T = theme.palette; const R = theme.borderRadius;
   const [tab, setTab] = useState('forecast');
   const forecasts = [
@@ -1341,7 +1353,7 @@ const INV_SUPPLIERS = {
   'Mascarpone':       { name:'OlivasBest',   email:'pedidos@olivasbest.mx',  phone:'55-2345-6789' },
 };
 
-function ModuleInventario({ theme, addToast, isMobile }) {
+function ModuleInventario({ theme, addToast, isMobile, perms }) {
   const T = theme.palette; const R = theme.borderRadius;
   const [adjustModal, setAdjustModal]   = useState(false);
   const [requestModal, setRequestModal] = useState(null); // item seleccionado
@@ -1425,7 +1437,9 @@ Tel: 55-5555-1234`;
     <div style={{ animation: 'fadeInUp 0.3s ease' }}>
       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16, flexWrap:'wrap', gap:12 }}>
         <h2 style={{ color:T.text, fontFamily:theme.font, fontSize:26, fontWeight:700, margin:0 }}>Inventario</h2>
-        <Btn theme={theme} onClick={() => setAdjustModal(true)}><RefreshCw size={14}/> Ajustar Inventario</Btn>
+        {perms?.canAdjustInventory !== false && (
+          <Btn theme={theme} onClick={() => setAdjustModal(true)}><RefreshCw size={14}/> Ajustar Inventario</Btn>
+        )}
       </div>
 
       {critical.length > 0 && (
@@ -1606,7 +1620,7 @@ Tel: 55-5555-1234`;
 // ════════════════════════════════════════════════════════════════════════════════
 // MODULE: WHATSAPP HUB
 // ════════════════════════════════════════════════════════════════════════════════
-function ModuleWhatsApp({ theme, addToast, isMobile }) {
+function ModuleWhatsApp({ theme, addToast, isMobile, perms }) {
   const T = theme.palette; const R = theme.borderRadius;
   const [tab, setTab] = useState('conversations');
   const [selectedConv, setSelectedConv] = useState(0);
@@ -1681,8 +1695,8 @@ function ModuleWhatsApp({ theme, addToast, isMobile }) {
         <div style={{display:'flex',flexDirection:'column',gap:12}}>
           {autos.map((a,i)=>(
             <Card key={i} theme={theme} style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-              <span style={{color:T.text,fontFamily:theme.fontBody,fontSize:15}}>{a.label}</span>
-              <div onClick={()=>{setAutos(p=>p.map((x,j)=>j===i?{...x,on:!x.on}:x));addToast(a.on?'Automatización desactivada':'Automatización activada',a.on?'error':'success');}} style={{width:48,height:26,borderRadius:100,background:a.on?T.accent:T.border,cursor:'pointer',position:'relative',transition:'background 0.2s'}}>
+              <span style={{color:T.text,fontFamily:theme.fontBody,fontSize:15}}>{a.label}{perms?.canManageAutomations === false && <span style={{marginLeft:8,fontSize:13}}>🔒</span>}</span>
+              <div onClick={()=>{if(perms?.canManageAutomations===false)return;setAutos(p=>p.map((x,j)=>j===i?{...x,on:!x.on}:x));addToast(a.on?'Automatización desactivada':'Automatización activada',a.on?'error':'success');}} style={{width:48,height:26,borderRadius:100,background:a.on?T.accent:T.border,cursor:perms?.canManageAutomations===false?'not-allowed':'pointer',position:'relative',transition:'background 0.2s',opacity:perms?.canManageAutomations===false?0.6:1}}>
                 <div style={{position:'absolute',top:3,left:a.on?24:3,width:20,height:20,borderRadius:'50%',background:'#fff',transition:'left 0.2s',boxShadow:'0 1px 4px rgba(0,0,0,0.2)'}}/>
               </div>
             </Card>
@@ -1703,7 +1717,7 @@ function ModuleWhatsApp({ theme, addToast, isMobile }) {
 // ════════════════════════════════════════════════════════════════════════════════
 // MODULE: REPUTACIÓN
 // ════════════════════════════════════════════════════════════════════════════════
-function ModuleReputacion({ theme, addToast, isMobile }) {
+function ModuleReputacion({ theme, addToast, isMobile, perms }) {
   const T = theme.palette; const R = theme.borderRadius;
   const [filter, setFilter] = useState('all');
   const [respondModal, setRespondModal] = useState(null);
@@ -1813,7 +1827,7 @@ SUCURSALES: 3 (Centro ✅, Polanco ⚠️, Santa Fe 🚨)
 
 Responde siempre en español. Sé conciso, directo y orientado a la acción. Cuando hagas recomendaciones, incluye pasos específicos. Puedes usar listas y formato markdown.`;
 
-function ModuleCopilot({ theme, addToast, isMobile }) {
+function ModuleCopilot({ theme, addToast, isMobile, perms }) {
   const T = theme.palette; const R = theme.borderRadius;
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
@@ -1934,7 +1948,7 @@ function ModuleCopilot({ theme, addToast, isMobile }) {
 // ════════════════════════════════════════════════════════════════════════════════
 // MODULE: MI MARCA
 // ════════════════════════════════════════════════════════════════════════════════
-function ModuleMarca({ theme, setTheme, addToast, isMobile }) {
+function ModuleMarca({ theme, setTheme, addToast, isMobile, perms }) {
   const T = theme.palette; const R = theme.borderRadius;
   const [tab, setTab] = useState('templates');
   const [localTheme, setLocalTheme] = useState({...theme, palette:{...theme.palette}});
@@ -2161,7 +2175,7 @@ export default function RestaurantOS({ onLogout, user }) {
         {visibleNav.map(item => <NavItem key={item.id} item={item} collapsed={collapsed}/>)}
       </nav>
       <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', padding: collapsed ? '12px 0' : '14px 16px' }}>
-        {!collapsed && <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 13, fontFamily: theme.fontBody, marginBottom: 10 }}>Ana García<br/><span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Dueño · ESCA</span></div>}
+        {!collapsed && <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 13, fontFamily: theme.fontBody, marginBottom: 10 }}>{user?.name || 'Usuario'}<br/><span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{ROLE_LABELS[role] || role} · {user?.restaurant || 'ESCA'}</span></div>}
         <button onClick={onLogout} title="Cerrar sesión" style={{ width: collapsed ? 40 : '100%', height: 34, background: 'rgba(192,57,43,0.2)', border: 'none', borderRadius: 6, color: '#ff8a80', cursor: 'pointer', fontSize: 12, fontFamily: theme.fontBody, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, margin: collapsed ? '0 auto' : undefined }}>
           {collapsed ? '⎋' : <><span>⎋</span> Cerrar sesión</>}
         </button>
@@ -2214,7 +2228,7 @@ export default function RestaurantOS({ onLogout, user }) {
               </div>
             )}
             <button onClick={() => addToast('Sin notificaciones nuevas','info')} style={{ background: 'none', border: 'none', color: T.textSecondary, cursor: 'pointer', padding: 4, display: 'flex' }}><Bell size={18}/></button>
-            <div style={{ width: 32, height: 32, borderRadius: '50%', background: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 13, fontWeight: 700 }}>AG</div>
+            <div style={{ width: 32, height: 32, borderRadius: '50%', background: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 13, fontWeight: 700 }}>{user?.name?.split(' ').map(n=>n[0]).join('').slice(0,2) || 'U'}</div>
           </div>
         </div>
 
