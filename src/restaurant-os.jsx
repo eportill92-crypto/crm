@@ -1260,77 +1260,276 @@ function ModuleIAOps({ theme, addToast }) {
 // ════════════════════════════════════════════════════════════════════════════════
 // MODULE: INVENTARIO
 // ════════════════════════════════════════════════════════════════════════════════
+const INV_SUPPLIERS = {
+  'Camarones Tiger':  { name:'FreshMar',     email:'contacto@freshmar.mx',   phone:'55-1234-5678' },
+  'Res Premium':      { name:'CarniPremium',  email:'ventas@carnipremium.mx', phone:'55-8765-4321' },
+  'Aceite de Oliva':  { name:'OlivasBest',   email:'pedidos@olivasbest.mx',  phone:'55-2345-6789' },
+  'Vino Tinto Reserva':{ name:'VinoCava',    email:'pedidos@vinocava.mx',    phone:'55-3456-7890' },
+  'Salmón Fresco':    { name:'FreshMar',     email:'contacto@freshmar.mx',   phone:'55-1234-5678' },
+  'Queso Manchego':   { name:'OlivasBest',   email:'pedidos@olivasbest.mx',  phone:'55-2345-6789' },
+  'Harina de Trigo':  { name:'CarniPremium', email:'ventas@carnipremium.mx', phone:'55-8765-4321' },
+  'Jitomates':        { name:'OlivasBest',   email:'pedidos@olivasbest.mx',  phone:'55-2345-6789' },
+  'Limones':          { name:'OlivasBest',   email:'pedidos@olivasbest.mx',  phone:'55-2345-6789' },
+  'Mascarpone':       { name:'OlivasBest',   email:'pedidos@olivasbest.mx',  phone:'55-2345-6789' },
+};
+
 function ModuleInventario({ theme, addToast, isMobile }) {
   const T = theme.palette; const R = theme.borderRadius;
-  const [adjustModal, setAdjustModal] = useState(false);
-  const [adjustForm, setAdjustForm] = useState({product:'Camarones Tiger',stock:'',reason:''});
+  const [adjustModal, setAdjustModal]   = useState(false);
+  const [requestModal, setRequestModal] = useState(null); // item seleccionado
+  const [requestQty, setRequestQty]     = useState('');
+  const [requestNotes, setRequestNotes] = useState('');
+  const [emailStep, setEmailStep]       = useState(false); // true = mostrar preview email
+  const [copied, setCopied]             = useState(false);
+  const [adjustForm, setAdjustForm]     = useState({product:'Camarones Tiger',stock:'',reason:''});
+
   const [inventory, setInventory] = useState([
-    {id:1,name:'Camarones Tiger',cat:'Proteínas',stock:2.5,unit:'kg',expiry:'2026-05-27',status:'critical',unitCost:385},
-    {id:2,name:'Res Premium',cat:'Proteínas',stock:12,unit:'kg',expiry:'2026-05-29',status:'ok',unitCost:280},
-    {id:3,name:'Aceite de Oliva',cat:'Aceites',stock:3,unit:'L',expiry:'2026-08-15',status:'low',unitCost:145},
-    {id:4,name:'Vino Tinto Reserva',cat:'Bebidas',stock:8,unit:'btl',expiry:'2028-01-01',status:'ok',unitCost:320},
-    {id:5,name:'Salmón Fresco',cat:'Proteínas',stock:1.5,unit:'kg',expiry:'2026-05-26',status:'critical',unitCost:420},
-    {id:6,name:'Queso Manchego',cat:'Lácteos',stock:4,unit:'kg',expiry:'2026-06-10',status:'ok',unitCost:185},
-    {id:7,name:'Harina de Trigo',cat:'Secos',stock:25,unit:'kg',expiry:'2026-09-01',status:'ok',unitCost:45},
-    {id:8,name:'Jitomates',cat:'Verduras',stock:8,unit:'kg',expiry:'2026-05-28',status:'low',unitCost:35},
-    {id:9,name:'Limones',cat:'Verduras',stock:15,unit:'kg',expiry:'2026-05-30',status:'ok',unitCost:28},
-    {id:10,name:'Mascarpone',cat:'Lácteos',stock:0.8,unit:'kg',expiry:'2026-05-26',status:'critical',unitCost:280},
+    {id:1, name:'Camarones Tiger',   cat:'Proteínas', stock:2.5,  unit:'kg',  expiry:'2026-05-27', status:'critical', unitCost:385},
+    {id:2, name:'Res Premium',       cat:'Proteínas', stock:12,   unit:'kg',  expiry:'2026-05-29', status:'ok',       unitCost:280},
+    {id:3, name:'Aceite de Oliva',   cat:'Aceites',   stock:3,    unit:'L',   expiry:'2026-08-15', status:'low',      unitCost:145},
+    {id:4, name:'Vino Tinto Reserva',cat:'Bebidas',   stock:8,    unit:'btl', expiry:'2028-01-01', status:'ok',       unitCost:320},
+    {id:5, name:'Salmón Fresco',     cat:'Proteínas', stock:1.5,  unit:'kg',  expiry:'2026-05-26', status:'critical', unitCost:420},
+    {id:6, name:'Queso Manchego',    cat:'Lácteos',   stock:4,    unit:'kg',  expiry:'2026-06-10', status:'ok',       unitCost:185},
+    {id:7, name:'Harina de Trigo',   cat:'Secos',     stock:25,   unit:'kg',  expiry:'2026-09-01', status:'ok',       unitCost:45},
+    {id:8, name:'Jitomates',         cat:'Verduras',  stock:8,    unit:'kg',  expiry:'2026-05-28', status:'low',      unitCost:35},
+    {id:9, name:'Limones',           cat:'Verduras',  stock:15,   unit:'kg',  expiry:'2026-05-30', status:'ok',       unitCost:28},
+    {id:10,name:'Mascarpone',        cat:'Lácteos',   stock:0.8,  unit:'kg',  expiry:'2026-05-26', status:'critical', unitCost:280},
   ]);
-  const critical = inventory.filter(x=>x.status==='critical');
-  const totalValue = inventory.reduce((a,x)=>a+x.stock*x.unitCost,0);
-  const statusMap = {ok:{color:T.success,label:'OK',bg:`${T.success}12`},low:{color:T.warning,label:'Bajo',bg:`${T.warning}12`},critical:{color:T.danger,label:'Crítico',bg:`${T.danger}12`}};
-  const daysToExpiry = expiry => {
-    const ms = new Date(expiry) - new Date();
-    return Math.floor(ms/(1000*60*60*24));
+
+  const critical    = inventory.filter(x => x.status === 'critical');
+  const totalValue  = inventory.reduce((a, x) => a + x.stock * x.unitCost, 0);
+  const statusMap   = {
+    ok:      { color: T.success, label: 'OK',      bg: `${T.success}12` },
+    low:     { color: T.warning, label: 'Bajo',    bg: `${T.warning}12` },
+    critical:{ color: T.danger,  label: 'Crítico', bg: `${T.danger}12`  },
   };
+
+  const daysToExpiry = expiry => Math.floor((new Date(expiry) - new Date()) / 86400000);
+
+  const openRequest = item => {
+    setRequestModal(item);
+    setRequestQty('');
+    setRequestNotes('');
+    setEmailStep(false);
+    setCopied(false);
+  };
+  const closeRequest = () => { setRequestModal(null); setEmailStep(false); };
+
+  const getEmailBody = () => {
+    if (!requestModal) return '';
+    const supplier = INV_SUPPLIERS[requestModal.name] || { name: 'Proveedor', email: '' };
+    const delivDate = new Date(); delivDate.setDate(delivDate.getDate() + 3);
+    const fmtDate = delivDate.toLocaleDateString('es-MX', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+    const total = (Number(requestQty) * requestModal.unitCost).toLocaleString();
+    return `Para: ${supplier.email}
+Asunto: Solicitud de reposición — ${requestModal.name} — ESCA Restaurante
+
+Estimado equipo de ${supplier.name},
+
+Por medio de la presente les solicitamos la reposición del siguiente insumo:
+
+• Producto: ${requestModal.name}
+• Cantidad solicitada: ${requestQty} ${requestModal.unit}
+• Precio unitario referencia: $${requestModal.unitCost}/${requestModal.unit}
+• Total estimado: $${total}
+• Stock actual: ${requestModal.stock} ${requestModal.unit}
+• Fecha de entrega requerida: ${fmtDate}
+${requestNotes ? `• Notas adicionales: ${requestNotes}` : ''}
+Por favor confirmar disponibilidad y fecha de entrega.
+
+Atentamente,
+Equipo de Compras
+ESCA Restaurante
+Tel: 55-5555-1234`;
+  };
+
+  const handleSendRequest = () => {
+    if (!requestQty) return;
+    setEmailStep(true);
+  };
+
+  const handleConfirm = () => {
+    addToast(`Solicitud de ${requestModal.name} creada — pendiente en Compras`);
+    closeRequest();
+  };
+
   return (
-    <div style={{animation:'fadeInUp 0.3s ease'}}>
-      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16,flexWrap:'wrap',gap:12}}>
-        <h2 style={{color:T.text,fontFamily:theme.font,fontSize:26,fontWeight:700,margin:0}}>Inventario</h2>
-        <Btn theme={theme} onClick={()=>setAdjustModal(true)}><RefreshCw size={14}/> Ajustar Inventario</Btn>
+    <div style={{ animation: 'fadeInUp 0.3s ease' }}>
+      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16, flexWrap:'wrap', gap:12 }}>
+        <h2 style={{ color:T.text, fontFamily:theme.font, fontSize:26, fontWeight:700, margin:0 }}>Inventario</h2>
+        <Btn theme={theme} onClick={() => setAdjustModal(true)}><RefreshCw size={14}/> Ajustar Inventario</Btn>
       </div>
-      {critical.length>0 && (
-        <div style={{background:`${T.danger}12`,border:`1px solid ${T.danger}30`,borderRadius:R,padding:14,marginBottom:16,display:'flex',alignItems:'center',gap:10}}>
+
+      {critical.length > 0 && (
+        <div style={{ background:`${T.danger}12`, border:`1px solid ${T.danger}30`, borderRadius:R, padding:14, marginBottom:16, display:'flex', alignItems:'center', gap:10 }}>
           <AlertCircle size={18} color={T.danger}/>
-          <span style={{color:T.danger,fontFamily:theme.fontBody,fontSize:14}}>
-            <strong>{critical.length} productos críticos:</strong> {critical.map(x=>x.name).join(', ')}
+          <span style={{ color:T.danger, fontFamily:theme.fontBody, fontSize:14 }}>
+            <strong>{critical.length} productos críticos:</strong> {critical.map(x => x.name).join(', ')}
           </span>
         </div>
       )}
-      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(160px,1fr))',gap:14,marginBottom:20}}>
-        {[{label:'Valor total',value:`$${Math.round(totalValue).toLocaleString()}`},{label:'Críticos',value:String(critical.length)},{label:'Por vencer',value:'2'}].map((s,i)=>(
-          <Card key={i} theme={theme}><div style={{color:T.textSecondary,fontSize:12,marginBottom:6,textTransform:'uppercase',letterSpacing:1,fontFamily:theme.fontBody}}>{s.label}</div><div style={{color:T.text,fontSize:26,fontFamily:theme.font,fontWeight:700}}>{s.value}</div></Card>
+
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(160px,1fr))', gap:14, marginBottom:20 }}>
+        {[
+          { label:'Valor total',  value:`$${Math.round(totalValue).toLocaleString()}` },
+          { label:'Críticos',     value: String(critical.length) },
+          { label:'Por vencer',   value: '2' },
+        ].map((s, i) => (
+          <Card key={i} theme={theme}>
+            <div style={{ color:T.textSecondary, fontSize:12, marginBottom:6, textTransform:'uppercase', letterSpacing:1, fontFamily:theme.fontBody }}>{s.label}</div>
+            <div style={{ color:T.text, fontSize:26, fontFamily:theme.font, fontWeight:700 }}>{s.value}</div>
+          </Card>
         ))}
       </div>
-      <Card theme={theme} style={{padding:0,overflowX:'auto'}}>
-        <table style={{width:'100%',borderCollapse:'collapse',fontFamily:theme.fontBody}}>
-          <thead><tr style={{borderBottom:`1px solid ${T.border}`}}>{['Producto','Categoría','Stock','Caducidad','Estado','Valor'].map(h=><th key={h} style={{padding:'12px 16px',textAlign:'left',color:T.textSecondary,fontSize:11,fontWeight:600,textTransform:'uppercase',letterSpacing:1,whiteSpace:'nowrap'}}>{h}</th>)}</tr></thead>
+
+      <Card theme={theme} style={{ padding:0, overflowX:'auto' }}>
+        <table style={{ width:'100%', borderCollapse:'collapse', fontFamily:theme.fontBody }}>
+          <thead>
+            <tr style={{ borderBottom:`1px solid ${T.border}` }}>
+              {['Producto','Categoría','Stock','Caducidad','Estado','Valor',''].map(h => (
+                <th key={h} style={{ padding:'12px 16px', textAlign:'left', color:T.textSecondary, fontSize:11, fontWeight:600, textTransform:'uppercase', letterSpacing:1, whiteSpace:'nowrap' }}>{h}</th>
+              ))}
+            </tr>
+          </thead>
           <tbody>
-            {inventory.map((item,i)=>{
-              const days=daysToExpiry(item.expiry);
-              const expiring=days<=3;
-              return(
-                <tr key={item.id} style={{borderBottom:i<inventory.length-1?`1px solid ${T.border}`:'none',background:expiring?`${T.warning}08`:'transparent'}}>
-                  <td style={{padding:'13px 16px',color:T.text,fontWeight:500,fontSize:14}}>{item.name}</td>
-                  <td style={{padding:'13px 16px',color:T.textSecondary,fontSize:13}}>{item.cat}</td>
-                  <td style={{padding:'13px 16px',color:T.text,fontSize:14,fontWeight:600}}>{item.stock} {item.unit}</td>
-                  <td style={{padding:'13px 16px',color:expiring?T.warning:T.textSecondary,fontSize:13,fontWeight:expiring?700:400}}>{item.expiry}{expiring?` (${days}d)`:''}</td>
-                  <td style={{padding:'13px 16px'}}><Badge label={statusMap[item.status].label} color={statusMap[item.status].color} bg={statusMap[item.status].bg}/></td>
-                  <td style={{padding:'13px 16px',color:T.text,fontSize:14}}>${(item.stock*item.unitCost).toFixed(0)}</td>
+            {inventory.map((item, i) => {
+              const days     = daysToExpiry(item.expiry);
+              const expiring = days <= 3;
+              return (
+                <tr key={item.id} style={{ borderBottom: i < inventory.length - 1 ? `1px solid ${T.border}` : 'none', background: expiring ? `${T.warning}08` : 'transparent', transition:'background 0.15s' }}
+                  onMouseEnter={e => e.currentTarget.style.background = T.accentLight}
+                  onMouseLeave={e => e.currentTarget.style.background = expiring ? `${T.warning}08` : 'transparent'}>
+                  <td style={{ padding:'13px 16px', color:T.text, fontWeight:500, fontSize:14 }}>{item.name}</td>
+                  <td style={{ padding:'13px 16px', color:T.textSecondary, fontSize:13 }}>{item.cat}</td>
+                  <td style={{ padding:'13px 16px', color:T.text, fontSize:14, fontWeight:600 }}>{item.stock} {item.unit}</td>
+                  <td style={{ padding:'13px 16px', color:expiring ? T.warning : T.textSecondary, fontSize:13, fontWeight:expiring ? 700 : 400 }}>
+                    {item.expiry}{expiring ? ` (${days}d)` : ''}
+                  </td>
+                  <td style={{ padding:'13px 16px' }}>
+                    <Badge label={statusMap[item.status].label} color={statusMap[item.status].color} bg={statusMap[item.status].bg}/>
+                  </td>
+                  <td style={{ padding:'13px 16px', color:T.text, fontSize:14 }}>${(item.stock * item.unitCost).toFixed(0)}</td>
+                  <td style={{ padding:'13px 16px', textAlign:'right' }}>
+                    <button onClick={() => openRequest(item)} style={{
+                      background: item.status === 'critical' ? T.danger : item.status === 'low' ? T.warning : T.accent,
+                      color: '#fff', border: 'none', borderRadius: R, padding: '6px 14px',
+                      cursor: 'pointer', fontSize: 12, fontWeight: 700, fontFamily: theme.fontBody,
+                      display: 'inline-flex', alignItems: 'center', gap: 5, whiteSpace: 'nowrap',
+                      transition: 'opacity 0.15s',
+                    }}
+                      onMouseEnter={e => e.currentTarget.style.opacity = '0.85'}
+                      onMouseLeave={e => e.currentTarget.style.opacity = '1'}>
+                      <ShoppingCart size={12}/> Solicitar
+                    </button>
+                  </td>
                 </tr>
               );
             })}
           </tbody>
         </table>
       </Card>
-      <Modal open={adjustModal} onClose={()=>setAdjustModal(false)} title="Ajuste de Inventario" theme={theme} isMobile={isMobile}>
-        <FormSelect label="Producto" value={adjustForm.product} onChange={v=>setAdjustForm(p=>({...p,product:v}))} options={inventory.map(x=>({value:x.name,label:x.name}))} theme={theme}/>
-        <FormInput label="Nuevo stock" value={adjustForm.stock} onChange={v=>setAdjustForm(p=>({...p,stock:v}))} type="number" theme={theme}/>
-        <FormInput label="Motivo" value={adjustForm.reason} onChange={v=>setAdjustForm(p=>({...p,reason:v}))} placeholder="Ej. Conteo físico, merma" theme={theme}/>
-        <div style={{display:'flex',gap:10}}>
-          <Btn theme={theme} variant="ghost" onClick={()=>setAdjustModal(false)} style={{flex:1}}>Cancelar</Btn>
-          <Btn theme={theme} onClick={()=>{if(!adjustForm.stock)return;setInventory(p=>p.map(x=>x.name===adjustForm.product?{...x,stock:Number(adjustForm.stock)}:x));setAdjustModal(false);addToast('Inventario actualizado');}} style={{flex:1}}>Guardar</Btn>
+
+      {/* ── Ajuste de Inventario Modal ── */}
+      <Modal open={adjustModal} onClose={() => setAdjustModal(false)} title="Ajuste de Inventario" theme={theme} isMobile={isMobile}>
+        <FormSelect label="Producto" value={adjustForm.product} onChange={v => setAdjustForm(p => ({...p, product:v}))} options={inventory.map(x => ({value:x.name, label:x.name}))} theme={theme}/>
+        <FormInput label="Nuevo stock" value={adjustForm.stock} onChange={v => setAdjustForm(p => ({...p, stock:v}))} type="number" theme={theme}/>
+        <FormInput label="Motivo" value={adjustForm.reason} onChange={v => setAdjustForm(p => ({...p, reason:v}))} placeholder="Ej. Conteo físico, merma" theme={theme}/>
+        <div style={{ display:'flex', gap:10 }}>
+          <Btn theme={theme} variant="ghost" onClick={() => setAdjustModal(false)} style={{flex:1}}>Cancelar</Btn>
+          <Btn theme={theme} onClick={() => {
+            if (!adjustForm.stock) return;
+            setInventory(p => p.map(x => x.name === adjustForm.product ? {...x, stock: Number(adjustForm.stock)} : x));
+            setAdjustModal(false);
+            addToast('Inventario actualizado');
+          }} style={{flex:1}}>Guardar</Btn>
         </div>
+      </Modal>
+
+      {/* ── Solicitar al Proveedor Modal ── */}
+      <Modal open={!!requestModal} onClose={closeRequest} title={emailStep ? 'Email al Proveedor' : `Solicitar — ${requestModal?.name}`} theme={theme} isMobile={isMobile} wide={emailStep}>
+        {requestModal && !emailStep && (() => {
+          const supplier = INV_SUPPLIERS[requestModal.name] || { name:'Proveedor', email:'—', phone:'—' };
+          const total    = requestQty ? (Number(requestQty) * requestModal.unitCost).toLocaleString() : '—';
+          return (
+            <>
+              {/* Info del producto */}
+              <div style={{ background:T.bg, border:`1px solid ${T.border}`, borderRadius:R, padding:14, marginBottom:20, display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
+                <div>
+                  <div style={{ color:T.textSecondary, fontSize:11, textTransform:'uppercase', letterSpacing:1, fontFamily:theme.fontBody, marginBottom:3 }}>Stock actual</div>
+                  <div style={{ color: requestModal.status === 'critical' ? T.danger : T.warning, fontFamily:theme.font, fontSize:20, fontWeight:700 }}>{requestModal.stock} {requestModal.unit}</div>
+                </div>
+                <div>
+                  <div style={{ color:T.textSecondary, fontSize:11, textTransform:'uppercase', letterSpacing:1, fontFamily:theme.fontBody, marginBottom:3 }}>Precio unitario</div>
+                  <div style={{ color:T.text, fontFamily:theme.font, fontSize:20, fontWeight:700 }}>${requestModal.unitCost}/{requestModal.unit}</div>
+                </div>
+              </div>
+
+              {/* Proveedor asignado */}
+              <div style={{ background:T.accentLight, border:`1px solid ${T.accent}30`, borderRadius:R, padding:12, marginBottom:20, display:'flex', alignItems:'center', gap:12 }}>
+                <div style={{ width:36, height:36, borderRadius:'50%', background:T.accent, display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontWeight:700, fontSize:14, flexShrink:0 }}>
+                  {supplier.name[0]}
+                </div>
+                <div>
+                  <div style={{ color:T.text, fontWeight:600, fontSize:14, fontFamily:theme.fontBody }}>{supplier.name}</div>
+                  <div style={{ color:T.textSecondary, fontSize:12, fontFamily:theme.fontBody }}>{supplier.email} · {supplier.phone}</div>
+                </div>
+              </div>
+
+              <FormInput label={`Cantidad a solicitar (${requestModal.unit})`} value={requestQty} onChange={setRequestQty} type="number" placeholder={`Ej. ${requestModal.stock < 5 ? 10 : 20}`} theme={theme}/>
+              <FormInput label="Notas adicionales (opcional)" value={requestNotes} onChange={setRequestNotes} placeholder="Urgente, calidad extra, etc." theme={theme}/>
+
+              {requestQty && (
+                <div style={{ background:T.bg, border:`1px solid ${T.border}`, borderRadius:R, padding:12, marginBottom:16, display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                  <span style={{ color:T.textSecondary, fontSize:13, fontFamily:theme.fontBody }}>Total estimado</span>
+                  <span style={{ color:T.accent, fontFamily:theme.font, fontSize:22, fontWeight:700 }}>${(Number(requestQty) * requestModal.unitCost).toLocaleString()}</span>
+                </div>
+              )}
+
+              <div style={{ display:'flex', gap:10 }}>
+                <Btn theme={theme} variant="ghost" onClick={closeRequest} style={{flex:1}}>Cancelar</Btn>
+                <Btn theme={theme} onClick={handleSendRequest} disabled={!requestQty} style={{flex:1}}>
+                  <Mail size={14}/> Ver email al proveedor
+                </Btn>
+              </div>
+            </>
+          );
+        })()}
+
+        {requestModal && emailStep && (() => {
+          const supplier = INV_SUPPLIERS[requestModal.name] || { name:'Proveedor', email:'—' };
+          const body     = getEmailBody();
+          return (
+            <>
+              <pre style={{ background:T.bg, border:`1px solid ${T.border}`, borderRadius:R, padding:16, color:T.text, fontFamily:'monospace', fontSize:13, lineHeight:1.7, whiteSpace:'pre-wrap', marginBottom:20, overflowX:'auto' }}>
+                {body}
+              </pre>
+              <div style={{ display:'flex', gap:10, flexWrap:'wrap', marginBottom:12 }}>
+                <Btn theme={theme} onClick={() => {
+                  navigator.clipboard?.writeText(body);
+                  setCopied(true);
+                  addToast('Mensaje copiado al portapapeles');
+                  setTimeout(() => setCopied(false), 2000);
+                }}>
+                  <Copy size={14}/> {copied ? '¡Copiado!' : 'Copiar mensaje'}
+                </Btn>
+                <Btn theme={theme} variant="secondary" onClick={() => {
+                  const subject = encodeURIComponent(`Solicitud de reposición — ${requestModal.name} — ESCA Restaurante`);
+                  const bodyEnc = encodeURIComponent(body.split('\n').slice(2).join('\n'));
+                  window.location.href = `mailto:${supplier.email}?subject=${subject}&body=${bodyEnc}`;
+                  addToast('Abriendo cliente de correo', 'info');
+                }}>
+                  <Mail size={14}/> Abrir en correo
+                </Btn>
+              </div>
+              <div style={{ display:'flex', gap:10 }}>
+                <Btn theme={theme} variant="ghost" onClick={() => setEmailStep(false)} style={{flex:1}}>← Editar</Btn>
+                <Btn theme={theme} onClick={handleConfirm} style={{flex:1}}>
+                  <CheckCircle size={14}/> Confirmar solicitud
+                </Btn>
+              </div>
+            </>
+          );
+        })()}
       </Modal>
     </div>
   );
