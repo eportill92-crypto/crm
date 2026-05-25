@@ -1,25 +1,40 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, Suspense, lazy } from 'react';
 
-function App() {
+const ReStooSAuth = lazy(() => import('./restoos-auth'));
+const RestaurantOS = lazy(() => import('./restaurant-os'));
+
+function LoadingScreen() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div style={{
+      width: '100vw', height: '100vh', display: 'flex', flexDirection: 'column',
+      alignItems: 'center', justifyContent: 'center', background: '#0C0E14', gap: 16
+    }}>
+      <div style={{ fontSize: 32, fontFamily: 'Syne, sans-serif', color: '#F0F1F5', fontWeight: 700, letterSpacing: '-0.5px' }}>
+        RestoOS
+      </div>
+      <div style={{ color: '#8B8FA8', fontSize: 14, fontFamily: 'DM Sans, sans-serif' }}>
+        Cargando plataforma...
+      </div>
+      <div style={{
+        width: 40, height: 4, background: '#2B5F4A', borderRadius: 2,
+        animation: 'pulse 1.5s ease-in-out infinite'
+      }} />
+      <style>{`
+        @keyframes pulse { 0%,100%{opacity:1;transform:scaleX(1)} 50%{opacity:0.5;transform:scaleX(0.6)} }
+      `}</style>
     </div>
   );
 }
 
-export default App;
+export default function App() {
+  const [screen, setScreen] = useState('auth'); // 'auth' | 'platform'
+
+  return (
+    <Suspense fallback={<LoadingScreen />}>
+      {screen === 'auth'
+        ? <ReStooSAuth onEnterPlatform={() => setScreen('platform')} />
+        : <RestaurantOS onLogout={() => setScreen('auth')} />
+      }
+    </Suspense>
+  );
+}
