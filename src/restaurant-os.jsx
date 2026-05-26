@@ -605,6 +605,9 @@ function ModuleMenu({ theme, addToast, isMobile, perms }) {
   const EMOJIS = ['🍽️','🥗','🥩','🍷','🍰','🐟','🍜','🍣','🥘','🍝','🥦','🍋','🫐','🥑','🍊','🧀','🥚','🍗','🥩','🍤'];
 
   const accentHex = T.accent.replace('#','');
+  const menuUrl = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    ? `${window.location.origin}/menu`
+    : 'https://menu.comensaia.com';
 
   return (
     <div style={{animation:'fadeInUp 0.3s ease'}}>
@@ -671,18 +674,23 @@ function ModuleMenu({ theme, addToast, isMobile, perms }) {
       {/* QR Section */}
       <Card theme={theme}>
         <div style={{display:'flex',flexWrap:'wrap',gap:24,alignItems:'center'}}>
-          <div>
-            <div style={{color:T.text,fontFamily:theme.font,fontSize:18,fontWeight:600,marginBottom:4}}>Código QR del Menú</div>
-            <div style={{color:T.textSecondary,fontSize:13,fontFamily:theme.fontBody,marginBottom:16}}>Comparte tu menú digital con un escaneo</div>
-            <div style={{display:'flex',gap:10,flexWrap:'wrap'}}>
-              <Btn theme={theme} small onClick={()=>addToast('QR descargado','success')}><Download size={13}/> Descargar</Btn>
-              <Btn theme={theme} variant="secondary" small onClick={()=>{navigator.clipboard?.writeText('https://menu.restoos.app/esca');addToast('Enlace copiado');}}>
+          <div style={{flex:1,minWidth:220}}>
+            <div style={{color:T.text,fontFamily:theme.font,fontSize:18,fontWeight:600,marginBottom:4}}>Menú público para clientes</div>
+            <div style={{color:T.textSecondary,fontSize:13,fontFamily:theme.fontBody,marginBottom:12}}>Tus clientes escanean el QR y ven el menú al instante, sin descargar nada.</div>
+            <div style={{display:'flex',alignItems:'center',gap:8,background:T.accentLight,border:`1px solid ${T.accent}40`,borderRadius:6,padding:'8px 12px',marginBottom:16}}>
+              <QrCode size={13} color={T.accent}/>
+              <span style={{color:T.accent,fontSize:13,fontWeight:600,fontFamily:theme.fontBody,wordBreak:'break-all'}}>{menuUrl}</span>
+            </div>
+            <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+              <Btn theme={theme} small onClick={()=>window.open(menuUrl,'_blank')}><Eye size={13}/> Abrir menú</Btn>
+              <Btn theme={theme} variant="secondary" small onClick={()=>{navigator.clipboard?.writeText(menuUrl);addToast('Enlace copiado');}}>
                 <Copy size={13}/> Copiar enlace
               </Btn>
+              <Btn theme={theme} variant="ghost" small onClick={()=>addToast('QR descargado','success')}><Download size={13}/> Descargar QR</Btn>
             </div>
           </div>
-          <div style={{border:`2px solid ${T.border}`,borderRadius:R,padding:12,background:'#fff'}}>
-            <img src={`https://api.qrserver.com/v1/create-qr-code/?size=140x140&color=${accentHex}&bgcolor=FFFFFF&data=https://menu.restoos.app/esca`} alt="QR" width={140} height={140} style={{display:'block',borderRadius:4}} />
+          <div style={{border:`2px solid ${T.border}`,borderRadius:R,padding:12,background:'#fff',flexShrink:0}}>
+            <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&color=${accentHex}&bgcolor=FFFFFF&data=${encodeURIComponent(menuUrl)}`} alt="QR Menú" width={150} height={150} style={{display:'block',borderRadius:4}} />
           </div>
         </div>
       </Card>

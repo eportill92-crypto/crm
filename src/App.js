@@ -2,6 +2,14 @@ import React, { useState, Suspense, lazy } from 'react';
 
 const ReStooSAuth = lazy(() => import('./restoos-auth'));
 const RestaurantOS = lazy(() => import('./restaurant-os'));
+const MenuPublic  = lazy(() => import('./menu-public'));
+
+// Show the public customer menu when accessed via menu subdomain or /menu path
+function isMenuDomain() {
+  const host = window.location.hostname;
+  const path = window.location.pathname;
+  return host.startsWith('menu.') || path === '/menu' || path.startsWith('/menu/');
+}
 
 function LoadingScreen() {
   return (
@@ -29,6 +37,14 @@ function LoadingScreen() {
 export default function App() {
   const [screen, setScreen] = useState('auth'); // 'auth' | 'platform'
   const [currentUser, setCurrentUser] = useState(null);
+
+  if (isMenuDomain()) {
+    return (
+      <Suspense fallback={<LoadingScreen />}>
+        <MenuPublic />
+      </Suspense>
+    );
+  }
 
   return (
     <Suspense fallback={<LoadingScreen />}>
