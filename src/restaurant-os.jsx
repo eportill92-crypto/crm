@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { LayoutDashboard, Users, UtensilsCrossed, ShoppingCart, BarChart2, Cpu, Package, MessageCircle, Star, Bot, Palette, ChevronLeft, ChevronRight, Menu, X, Bell, MoreVertical, TrendingUp, TrendingDown, AlertCircle, CheckCircle, Send, Plus, Edit2, Trash2, Eye, Download, Copy, Mail, QrCode, RefreshCw } from 'lucide-react';
+import { LayoutDashboard, Users, UtensilsCrossed, ShoppingCart, BarChart2, Cpu, Package, MessageCircle, Star, Bot, Palette, ChevronLeft, ChevronRight, Menu, X, Bell, MoreVertical, TrendingUp, TrendingDown, AlertCircle, CheckCircle, Send, Plus, Edit2, Trash2, Eye, Download, Copy, Mail, QrCode, RefreshCw, UserPlus } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell, AreaChart, Area, Legend } from 'recharts';
 
 // ─── Keyframes ───────────────────────────────────────────────────────────────
@@ -2082,6 +2082,115 @@ function ModuleMarca({ theme, setTheme, addToast, isMobile, perms }) {
   );
 }
 
+// ─── Team Management Panel (Owner only) ──────────────────────────────────────
+const INITIAL_TEAM = [
+  { id: 1, name: 'Miguel Fernández', email: 'gerente@esca.mx', role: 'manager', active: true },
+  { id: 2, name: 'Sofía Herrera', email: 'staff@esca.mx', role: 'staff', active: true },
+];
+
+function TeamPanel({ open, onClose, theme, restaurant, addToast }) {
+  const T = theme.palette; const R = theme.borderRadius;
+  const [teamUsers, setTeamUsers] = useState(INITIAL_TEAM);
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({ name: '', email: '', password: '', role: 'staff' });
+
+  if (!open) return null;
+
+  const handleCreate = () => {
+    if (!form.name.trim() || !form.email.trim() || !form.password.trim()) {
+      addToast('Completa todos los campos', 'error'); return;
+    }
+    if (form.password.length < 8) {
+      addToast('La contraseña debe tener al menos 8 caracteres', 'error'); return;
+    }
+    if (teamUsers.find(u => u.email.toLowerCase() === form.email.toLowerCase())) {
+      addToast('Ese correo ya está registrado', 'error'); return;
+    }
+    setTeamUsers(prev => [...prev, { id: Date.now(), name: form.name.trim(), email: form.email.trim().toLowerCase(), role: form.role, active: true }]);
+    setForm({ name: '', email: '', password: '', role: 'staff' });
+    setShowForm(false);
+    addToast(`Usuario ${form.name.trim()} creado correctamente`);
+  };
+
+  const toggleActive = (id) => {
+    const u = teamUsers.find(u => u.id === id);
+    setTeamUsers(prev => prev.map(u => u.id === id ? { ...u, active: !u.active } : u));
+    addToast(`${u.name} ${u.active ? 'desactivado' : 'activado'}`);
+  };
+
+  const removeUser = (id) => {
+    const u = teamUsers.find(u => u.id === id);
+    setTeamUsers(prev => prev.filter(u => u.id !== id));
+    addToast(`${u.name} eliminado del equipo`, 'warning');
+  };
+
+  const roleColor = (role) => role === 'manager'
+    ? { bg: T.accentLight, color: T.accent }
+    : { bg: T.border, color: T.textSecondary };
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+      onClick={e => e.target === e.currentTarget && onClose()}>
+      <div style={{ background: T.bgCard, borderRadius: R, padding: 28, width: '90vw', maxWidth: 560, maxHeight: '85vh', overflowY: 'auto', animation: 'fadeInUp 0.25s ease' }}>
+        {/* Header */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
+          <div>
+            <h3 style={{ color: T.text, fontFamily: theme.font, fontSize: 20, margin: 0 }}>Mi Equipo</h3>
+            <p style={{ color: T.textSecondary, fontSize: 13, margin: '4px 0 0', fontFamily: theme.fontBody }}>{restaurant}</p>
+          </div>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', color: T.textSecondary, cursor: 'pointer', padding: 4 }}><X size={20}/></button>
+        </div>
+
+        {/* Users list */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
+          {teamUsers.length === 0 && (
+            <p style={{ color: T.textSecondary, fontFamily: theme.fontBody, textAlign: 'center', padding: '24px 0', fontSize: 14 }}>Sin usuarios en tu equipo todavía.</p>
+          )}
+          {teamUsers.map(u => {
+            const rc = roleColor(u.role);
+            return (
+              <div key={u.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', background: T.bg, borderRadius: R, border: `1px solid ${T.border}`, opacity: u.active ? 1 : 0.5, transition: 'opacity 0.2s' }}>
+                <div style={{ width: 38, height: 38, borderRadius: '50%', background: T.accentLight, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.accent, fontSize: 12, fontWeight: 700, flexShrink: 0 }}>
+                  {u.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ color: T.text, fontFamily: theme.fontBody, fontWeight: 600, fontSize: 14 }}>{u.name}</div>
+                  <div style={{ color: T.textSecondary, fontSize: 12, fontFamily: theme.fontBody, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{u.email}</div>
+                </div>
+                <span style={{ background: rc.bg, color: rc.color, padding: '3px 10px', borderRadius: 100, fontSize: 11, fontWeight: 700, whiteSpace: 'nowrap', flexShrink: 0 }}>
+                  {ROLE_LABELS[u.role]}
+                </span>
+                <button onClick={() => toggleActive(u.id)} title={u.active ? 'Desactivar usuario' : 'Activar usuario'} style={{ background: u.active ? T.success + '22' : T.border, border: 'none', borderRadius: 100, padding: '4px 12px', cursor: 'pointer', color: u.active ? T.success : T.textSecondary, fontSize: 11, fontFamily: theme.fontBody, fontWeight: 600, flexShrink: 0 }}>
+                  {u.active ? 'Activo' : 'Inactivo'}
+                </button>
+                <button onClick={() => removeUser(u.id)} title="Eliminar usuario" style={{ background: 'none', border: 'none', color: T.danger, cursor: 'pointer', padding: 4, display: 'flex', flexShrink: 0 }}><Trash2 size={14}/></button>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Add user form */}
+        {!showForm ? (
+          <Btn theme={theme} onClick={() => setShowForm(true)}><UserPlus size={15}/> Agregar usuario</Btn>
+        ) : (
+          <div style={{ background: T.bg, border: `1px solid ${T.border}`, borderRadius: R, padding: 20 }}>
+            <h4 style={{ color: T.text, fontFamily: theme.font, margin: '0 0 16px', fontSize: 16 }}>Nuevo usuario</h4>
+            <FormInput label="Nombre completo" value={form.name} onChange={v => setForm(p => ({ ...p, name: v }))} placeholder="Ej. Juan López" theme={theme}/>
+            <FormInput label="Correo electrónico" value={form.email} onChange={v => setForm(p => ({ ...p, email: v }))} type="email" placeholder="juan@esca.mx" theme={theme}/>
+            <FormInput label="Contraseña temporal" value={form.password} onChange={v => setForm(p => ({ ...p, password: v }))} type="password" placeholder="Mínimo 8 caracteres" theme={theme}/>
+            <FormSelect label="Rol" value={form.role} onChange={v => setForm(p => ({ ...p, role: v }))} options={[{ value: 'manager', label: 'Gerente' }, { value: 'staff', label: 'Staff' }]} theme={theme}/>
+            <p style={{ color: T.textSecondary, fontSize: 12, fontFamily: theme.fontBody, margin: '0 0 16px' }}>El usuario podrá cambiar su contraseña al iniciar sesión.</p>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <Btn theme={theme} onClick={handleCreate}><CheckCircle size={15}/> Crear usuario</Btn>
+              <Btn theme={theme} variant="ghost" onClick={() => { setShowForm(false); setForm({ name: '', email: '', password: '', role: 'staff' }); }}>Cancelar</Btn>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ════════════════════════════════════════════════════════════════════════════════
 // MAIN SHELL
 // ════════════════════════════════════════════════════════════════════════════════
@@ -2093,6 +2202,7 @@ export default function RestaurantOS({ onLogout, user }) {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
   const [pendingOrders, setPendingOrders] = useState(2);
   const [themeMenuOpen, setThemeMenuOpen] = useState(false);
+  const [showTeamPanel, setShowTeamPanel] = useState(false);
   const { toasts, addToast } = useToasts();
 
   const role = user?.role || 'staff';
@@ -2228,7 +2338,10 @@ export default function RestaurantOS({ onLogout, user }) {
               </div>
             )}
             <button onClick={() => addToast('Sin notificaciones nuevas','info')} style={{ background: 'none', border: 'none', color: T.textSecondary, cursor: 'pointer', padding: 4, display: 'flex' }}><Bell size={18}/></button>
-            <div style={{ width: 32, height: 32, borderRadius: '50%', background: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 13, fontWeight: 700 }}>{user?.name?.split(' ').map(n=>n[0]).join('').slice(0,2) || 'U'}</div>
+            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+              <div onClick={() => role === 'owner' && setShowTeamPanel(true)} title={role === 'owner' ? 'Gestionar mi equipo' : user?.name} style={{ width: 32, height: 32, borderRadius: '50%', background: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 13, fontWeight: 700, cursor: role === 'owner' ? 'pointer' : 'default' }}>{user?.name?.split(' ').map(n=>n[0]).join('').slice(0,2) || 'U'}</div>
+              {role === 'owner' && <div title="Gestionar mi equipo" style={{ position: 'absolute', bottom: -2, right: -2, width: 14, height: 14, borderRadius: '50%', background: T.bgCard, display: 'flex', alignItems: 'center', justifyContent: 'center', border: `1px solid ${T.border}` }}><Users size={8} color={T.accent}/></div>}
+            </div>
           </div>
         </div>
 
@@ -2256,6 +2369,7 @@ export default function RestaurantOS({ onLogout, user }) {
         </div>
       )}
 
+      {role === 'owner' && <TeamPanel open={showTeamPanel} onClose={() => setShowTeamPanel(false)} theme={theme} restaurant={user?.restaurant || 'ESCA'} addToast={addToast}/>}
       <ToastContainer toasts={toasts} theme={theme}/>
     </div>
   );
