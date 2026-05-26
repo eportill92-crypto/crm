@@ -607,9 +607,10 @@ function ModuleMenu({ theme, addToast, isMobile, perms }) {
   const EMOJIS = ['🍽️','🥗','🥩','🍷','🍰','🐟','🍜','🍣','🥘','🍝','🥦','🍋','🫐','🥑','🍊','🧀','🥚','🍗','🥩','🍤'];
 
   const accentHex = T.accent.replace('#','');
-  const menuUrl = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-    ? `${window.location.origin}/menu`
-    : 'https://menu.comensaia.com';
+  const menuUrl = process.env.REACT_APP_MENU_URL ||
+    ((window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+      ? `${window.location.origin}/menu`
+      : 'https://menu.comensaia.com');
 
   return (
     <div style={{animation:'fadeInUp 0.3s ease'}}>
