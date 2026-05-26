@@ -2376,7 +2376,7 @@ function TeamPanel({ open, onClose, theme, restaurant, addToast }) {
 // ════════════════════════════════════════════════════════════════════════════════
 // MAIN SHELL
 // ════════════════════════════════════════════════════════════════════════════════
-export default function RestaurantOS({ onLogout, user }) {
+export default function RestaurantOS({ onLogout, user, stagingOffset }) {
   const [theme, setTheme] = useState(THEMES.esca);
   const [activeModule, setActiveModule] = useState('dashboard');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -2478,8 +2478,10 @@ export default function RestaurantOS({ onLogout, user }) {
     </div>
   );
 
+  const stagingPad = stagingOffset ? 30 : 0;
+
   return (
-    <div style={{ display: 'flex', height: '100vh', background: T.bg, fontFamily: theme.fontBody, color: T.text, overflow: 'hidden' }}>
+    <div style={{ display: 'flex', height: '100vh', background: T.bg, fontFamily: theme.fontBody, color: T.text, overflow: 'hidden', paddingTop: stagingPad }}>
       {/* Desktop Sidebar */}
       {!isMobile && (
         <div style={{ width: sidebarW, background: T.bgSidebar, flexShrink: 0, transition: 'width 0.25s', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>

@@ -48,7 +48,7 @@ function ShareIcon() {
   );
 }
 
-export default function MenuPublic() {
+export default function MenuPublic({ stagingOffset }) {
   const [cat, setCat] = useState('all');
   const [scrolled, setScrolled] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -79,7 +79,7 @@ export default function MenuPublic() {
   };
 
   return (
-    <div ref={scrollRef} style={{ height: '100vh', overflowY: 'auto', WebkitOverflowScrolling: 'touch', background: '#F8F7F4', fontFamily: REST.fontBody, color: '#1C1C1C' }}>
+    <div ref={scrollRef} style={{ height: '100vh', overflowY: 'auto', WebkitOverflowScrolling: 'touch', background: '#F8F7F4', fontFamily: REST.fontBody, color: '#1C1C1C', paddingTop: stagingOffset ? 30 : 0 }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@400;500;600&display=swap');
         *{box-sizing:border-box}
