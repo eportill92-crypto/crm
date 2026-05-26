@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { LayoutDashboard, Users, UtensilsCrossed, ShoppingCart, BarChart2, Cpu, Package, MessageCircle, Star, Bot, Palette, ChevronLeft, ChevronRight, Menu, X, Bell, MoreVertical, TrendingUp, TrendingDown, AlertCircle, CheckCircle, Send, Plus, Edit2, Trash2, Eye, Download, Copy, Mail, QrCode, RefreshCw, UserPlus } from 'lucide-react';
+import { LayoutDashboard, Users, UtensilsCrossed, ShoppingCart, BarChart2, Cpu, Package, MessageCircle, Star, Bot, Palette, ChevronLeft, ChevronRight, Menu, X, Bell, MoreVertical, TrendingUp, TrendingDown, AlertCircle, CheckCircle, Send, Plus, Edit2, Trash2, Eye, Download, Copy, Mail, QrCode, RefreshCw, UserPlus, Shield } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell, AreaChart, Area, Legend } from 'recharts';
 
 // ─── Keyframes ───────────────────────────────────────────────────────────────
@@ -2083,109 +2083,280 @@ function ModuleMarca({ theme, setTheme, addToast, isMobile, perms }) {
 }
 
 // ─── Team Management Panel (Owner only) ──────────────────────────────────────
+const ALL_MODULES_META = [
+  { id: 'dashboard', label: 'Dashboard' }, { id: 'crm', label: 'CRM' },
+  { id: 'menu', label: 'Menú' }, { id: 'compras', label: 'Compras' },
+  { id: 'reporteo', label: 'Reporteo' }, { id: 'ia-ops', label: 'IA Ops' },
+  { id: 'inventario', label: 'Inventario' }, { id: 'whatsapp', label: 'WhatsApp' },
+  { id: 'reputacion', label: 'Reputación' }, { id: 'copilot', label: 'Copilot' },
+  { id: 'marca', label: 'Mi Marca' },
+];
+const ALL_PERMS_META = [
+  { key: 'canApproveOrders', label: 'Aprobar órdenes de compra' },
+  { key: 'canCreateOrders', label: 'Crear solicitudes de compra' },
+  { key: 'canEditMenu', label: 'Editar menú y platillos' },
+  { key: 'canDeleteDishes', label: 'Eliminar platillos' },
+  { key: 'canAdjustInventory', label: 'Ajustar conteos de inventario' },
+  { key: 'canSolicitarInventory', label: 'Solicitar productos a proveedores' },
+  { key: 'canEditCampaigns', label: 'Crear y editar campañas CRM' },
+  { key: 'canRespondReviews', label: 'Responder reseñas de clientes' },
+  { key: 'canViewReports', label: 'Ver reportes y métricas' },
+  { key: 'canEditBrand', label: 'Editar identidad de marca' },
+  { key: 'canManageAutomations', label: 'Gestionar automatizaciones de WhatsApp' },
+  { key: 'canSendMessages', label: 'Enviar mensajes de WhatsApp' },
+];
+
 const INITIAL_TEAM = [
-  { id: 1, name: 'Miguel Fernández', email: 'gerente@esca.mx', role: 'manager', active: true },
-  { id: 2, name: 'Sofía Herrera', email: 'staff@esca.mx', role: 'staff', active: true },
+  { id: 1, name: 'Miguel Fernández', email: 'gerente@esca.mx', roleKey: 'manager', active: true },
+  { id: 2, name: 'Sofía Herrera', email: 'staff@esca.mx', roleKey: 'staff', active: true },
+];
+
+const DEFAULT_ROLES = [
+  { key: 'manager', label: 'Gerente', modules: [...ROLE_MODULES.manager], perms: { ...ROLE_PERMS.manager } },
+  { key: 'staff', label: 'Staff', modules: [...ROLE_MODULES.staff], perms: { ...ROLE_PERMS.staff } },
 ];
 
 function TeamPanel({ open, onClose, theme, restaurant, addToast }) {
   const T = theme.palette; const R = theme.borderRadius;
+  const [tab, setTab] = useState('users');
   const [teamUsers, setTeamUsers] = useState(INITIAL_TEAM);
-  const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ name: '', email: '', password: '', role: 'staff' });
+  const [roles, setRoles] = useState(DEFAULT_ROLES);
+
+  // User form state
+  const [showUserForm, setShowUserForm] = useState(false);
+  const [userForm, setUserForm] = useState({ name: '', email: '', password: '', roleKey: 'staff' });
+
+  // Role editor state
+  const [editingRoleKey, setEditingRoleKey] = useState(null);
+  const [isNewRole, setIsNewRole] = useState(false);
+  const [roleForm, setRoleForm] = useState({ label: '', modules: [], perms: {} });
 
   if (!open) return null;
 
-  const handleCreate = () => {
-    if (!form.name.trim() || !form.email.trim() || !form.password.trim()) {
-      addToast('Completa todos los campos', 'error'); return;
-    }
-    if (form.password.length < 8) {
-      addToast('La contraseña debe tener al menos 8 caracteres', 'error'); return;
-    }
-    if (teamUsers.find(u => u.email.toLowerCase() === form.email.toLowerCase())) {
-      addToast('Ese correo ya está registrado', 'error'); return;
-    }
-    setTeamUsers(prev => [...prev, { id: Date.now(), name: form.name.trim(), email: form.email.trim().toLowerCase(), role: form.role, active: true }]);
-    setForm({ name: '', email: '', password: '', role: 'staff' });
-    setShowForm(false);
-    addToast(`Usuario ${form.name.trim()} creado correctamente`);
+  // ── User handlers ──
+  const createUser = () => {
+    if (!userForm.name.trim() || !userForm.email.trim() || !userForm.password.trim()) { addToast('Completa todos los campos', 'error'); return; }
+    if (userForm.password.length < 8) { addToast('La contraseña debe tener al menos 8 caracteres', 'error'); return; }
+    if (teamUsers.find(u => u.email.toLowerCase() === userForm.email.toLowerCase())) { addToast('Ese correo ya está registrado', 'error'); return; }
+    setTeamUsers(p => [...p, { id: Date.now(), name: userForm.name.trim(), email: userForm.email.trim().toLowerCase(), roleKey: userForm.roleKey, active: true }]);
+    setUserForm({ name: '', email: '', password: '', roleKey: 'staff' });
+    setShowUserForm(false);
+    addToast(`Usuario ${userForm.name.trim()} creado`);
   };
-
-  const toggleActive = (id) => {
+  const toggleUser = (id) => {
     const u = teamUsers.find(u => u.id === id);
-    setTeamUsers(prev => prev.map(u => u.id === id ? { ...u, active: !u.active } : u));
+    setTeamUsers(p => p.map(u => u.id === id ? { ...u, active: !u.active } : u));
     addToast(`${u.name} ${u.active ? 'desactivado' : 'activado'}`);
   };
-
   const removeUser = (id) => {
     const u = teamUsers.find(u => u.id === id);
-    setTeamUsers(prev => prev.filter(u => u.id !== id));
+    setTeamUsers(p => p.filter(u => u.id !== id));
     addToast(`${u.name} eliminado del equipo`, 'warning');
   };
+  const changeUserRole = (id, roleKey) => setTeamUsers(p => p.map(u => u.id === id ? { ...u, roleKey } : u));
 
-  const roleColor = (role) => role === 'manager'
-    ? { bg: T.accentLight, color: T.accent }
-    : { bg: T.border, color: T.textSecondary };
+  // ── Role handlers ──
+  const openEditRole = (r) => { setRoleForm({ label: r.label, modules: [...r.modules], perms: { ...r.perms } }); setEditingRoleKey(r.key); setIsNewRole(false); };
+  const openNewRole = () => { setRoleForm({ label: '', modules: ['dashboard'], perms: {} }); setEditingRoleKey('__new__'); setIsNewRole(true); };
+  const cancelRoleEdit = () => setEditingRoleKey(null);
+  const saveRole = () => {
+    if (!roleForm.label.trim()) { addToast('El rol necesita un nombre', 'error'); return; }
+    if (roleForm.modules.length === 0) { addToast('Selecciona al menos un módulo', 'error'); return; }
+    if (isNewRole) {
+      const k = 'custom_' + Date.now();
+      setRoles(p => [...p, { key: k, label: roleForm.label.trim(), modules: roleForm.modules, perms: roleForm.perms }]);
+      addToast(`Rol "${roleForm.label.trim()}" creado`);
+    } else {
+      setRoles(p => p.map(r => r.key === editingRoleKey ? { ...r, label: roleForm.label.trim(), modules: roleForm.modules, perms: roleForm.perms } : r));
+      addToast('Rol actualizado');
+    }
+    setEditingRoleKey(null);
+  };
+  const deleteRole = (key) => {
+    const affected = teamUsers.filter(u => u.roleKey === key).length;
+    const fallback = roles.find(r => r.key !== key)?.key || 'staff';
+    setTeamUsers(p => p.map(u => u.roleKey === key ? { ...u, roleKey: fallback } : u));
+    setRoles(p => p.filter(r => r.key !== key));
+    const fallbackLabel = roles.find(r => r.key === fallback)?.label || fallback;
+    addToast(affected > 0 ? `Rol eliminado · ${affected} usuario(s) reasignados a "${fallbackLabel}"` : 'Rol eliminado', 'warning');
+  };
+  const toggleModule = (id) => setRoleForm(p => ({ ...p, modules: p.modules.includes(id) ? p.modules.filter(m => m !== id) : [...p.modules, id] }));
+  const togglePerm = (key) => setRoleForm(p => ({ ...p, perms: { ...p.perms, [key]: !p.perms[key] } }));
+
+  const tabBtn = (active) => ({ padding: '8px 16px', background: active ? T.accent : 'transparent', border: 'none', borderRadius: 6, cursor: 'pointer', color: active ? '#fff' : T.textSecondary, fontFamily: theme.fontBody, fontSize: 13, fontWeight: active ? 700 : 400, display: 'flex', alignItems: 'center', gap: 6 });
 
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
       onClick={e => e.target === e.currentTarget && onClose()}>
-      <div style={{ background: T.bgCard, borderRadius: R, padding: 28, width: '90vw', maxWidth: 560, maxHeight: '85vh', overflowY: 'auto', animation: 'fadeInUp 0.25s ease' }}>
-        {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
-          <div>
-            <h3 style={{ color: T.text, fontFamily: theme.font, fontSize: 20, margin: 0 }}>Mi Equipo</h3>
-            <p style={{ color: T.textSecondary, fontSize: 13, margin: '4px 0 0', fontFamily: theme.fontBody }}>{restaurant}</p>
-          </div>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', color: T.textSecondary, cursor: 'pointer', padding: 4 }}><X size={20}/></button>
-        </div>
+      <div style={{ background: T.bgCard, borderRadius: R, width: '100%', maxWidth: 740, maxHeight: '90vh', display: 'flex', flexDirection: 'column', animation: 'fadeInUp 0.25s ease', overflow: 'hidden' }}>
 
-        {/* Users list */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
-          {teamUsers.length === 0 && (
-            <p style={{ color: T.textSecondary, fontFamily: theme.fontBody, textAlign: 'center', padding: '24px 0', fontSize: 14 }}>Sin usuarios en tu equipo todavía.</p>
-          )}
-          {teamUsers.map(u => {
-            const rc = roleColor(u.role);
-            return (
-              <div key={u.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', background: T.bg, borderRadius: R, border: `1px solid ${T.border}`, opacity: u.active ? 1 : 0.5, transition: 'opacity 0.2s' }}>
-                <div style={{ width: 38, height: 38, borderRadius: '50%', background: T.accentLight, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.accent, fontSize: 12, fontWeight: 700, flexShrink: 0 }}>
-                  {u.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ color: T.text, fontFamily: theme.fontBody, fontWeight: 600, fontSize: 14 }}>{u.name}</div>
-                  <div style={{ color: T.textSecondary, fontSize: 12, fontFamily: theme.fontBody, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{u.email}</div>
-                </div>
-                <span style={{ background: rc.bg, color: rc.color, padding: '3px 10px', borderRadius: 100, fontSize: 11, fontWeight: 700, whiteSpace: 'nowrap', flexShrink: 0 }}>
-                  {ROLE_LABELS[u.role]}
-                </span>
-                <button onClick={() => toggleActive(u.id)} title={u.active ? 'Desactivar usuario' : 'Activar usuario'} style={{ background: u.active ? T.success + '22' : T.border, border: 'none', borderRadius: 100, padding: '4px 12px', cursor: 'pointer', color: u.active ? T.success : T.textSecondary, fontSize: 11, fontFamily: theme.fontBody, fontWeight: 600, flexShrink: 0 }}>
-                  {u.active ? 'Activo' : 'Inactivo'}
-                </button>
-                <button onClick={() => removeUser(u.id)} title="Eliminar usuario" style={{ background: 'none', border: 'none', color: T.danger, cursor: 'pointer', padding: 4, display: 'flex', flexShrink: 0 }}><Trash2 size={14}/></button>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Add user form */}
-        {!showForm ? (
-          <Btn theme={theme} onClick={() => setShowForm(true)}><UserPlus size={15}/> Agregar usuario</Btn>
-        ) : (
-          <div style={{ background: T.bg, border: `1px solid ${T.border}`, borderRadius: R, padding: 20 }}>
-            <h4 style={{ color: T.text, fontFamily: theme.font, margin: '0 0 16px', fontSize: 16 }}>Nuevo usuario</h4>
-            <FormInput label="Nombre completo" value={form.name} onChange={v => setForm(p => ({ ...p, name: v }))} placeholder="Ej. Juan López" theme={theme}/>
-            <FormInput label="Correo electrónico" value={form.email} onChange={v => setForm(p => ({ ...p, email: v }))} type="email" placeholder="juan@esca.mx" theme={theme}/>
-            <FormInput label="Contraseña temporal" value={form.password} onChange={v => setForm(p => ({ ...p, password: v }))} type="password" placeholder="Mínimo 8 caracteres" theme={theme}/>
-            <FormSelect label="Rol" value={form.role} onChange={v => setForm(p => ({ ...p, role: v }))} options={[{ value: 'manager', label: 'Gerente' }, { value: 'staff', label: 'Staff' }]} theme={theme}/>
-            <p style={{ color: T.textSecondary, fontSize: 12, fontFamily: theme.fontBody, margin: '0 0 16px' }}>El usuario podrá cambiar su contraseña al iniciar sesión.</p>
-            <div style={{ display: 'flex', gap: 10 }}>
-              <Btn theme={theme} onClick={handleCreate}><CheckCircle size={15}/> Crear usuario</Btn>
-              <Btn theme={theme} variant="ghost" onClick={() => { setShowForm(false); setForm({ name: '', email: '', password: '', role: 'staff' }); }}>Cancelar</Btn>
+        {/* ── Header + Tabs ── */}
+        <div style={{ padding: '22px 26px 0', flexShrink: 0 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 18 }}>
+            <div>
+              <h3 style={{ color: T.text, fontFamily: theme.font, fontSize: 21, margin: 0 }}>Administración de Equipo</h3>
+              <p style={{ color: T.textSecondary, fontSize: 13, margin: '4px 0 0', fontFamily: theme.fontBody }}>{restaurant} · {teamUsers.length} usuario{teamUsers.length !== 1 ? 's' : ''} · {roles.length} rol{roles.length !== 1 ? 'es' : ''}</p>
             </div>
+            <button onClick={onClose} style={{ background: 'none', border: 'none', color: T.textSecondary, cursor: 'pointer', padding: 4 }}><X size={20}/></button>
           </div>
-        )}
+          <div style={{ display: 'flex', gap: 4, background: T.bg, padding: 4, borderRadius: 8, width: 'fit-content' }}>
+            <button style={tabBtn(tab === 'users')} onClick={() => setTab('users')}><Users size={14}/>Equipo</button>
+            <button style={tabBtn(tab === 'roles')} onClick={() => { setTab('roles'); setEditingRoleKey(null); }}><Shield size={14}/>Roles y Permisos</button>
+          </div>
+          <div style={{ height: 1, background: T.border, margin: '16px -26px 0' }}/>
+        </div>
+
+        {/* ── Body ── */}
+        <div style={{ flex: 1, overflowY: 'auto', padding: '20px 26px 26px' }}>
+
+          {/* ════ USERS TAB ════ */}
+          {tab === 'users' && (
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+                <span style={{ color: T.textSecondary, fontSize: 13, fontFamily: theme.fontBody }}>{teamUsers.filter(u => u.active).length} activos · {teamUsers.filter(u => !u.active).length} inactivos</span>
+                {!showUserForm && <Btn theme={theme} small onClick={() => setShowUserForm(true)}><UserPlus size={14}/> Agregar usuario</Btn>}
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: showUserForm ? 16 : 0 }}>
+                {teamUsers.length === 0 && <p style={{ color: T.textSecondary, fontFamily: theme.fontBody, textAlign: 'center', padding: '32px 0', fontSize: 14 }}>Sin usuarios aún. Agrega el primero.</p>}
+                {teamUsers.map(u => (
+                  <div key={u.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 14px', background: T.bg, borderRadius: R, border: `1px solid ${T.border}`, opacity: u.active ? 1 : 0.5, transition: 'opacity 0.2s' }}>
+                    <div style={{ width: 36, height: 36, borderRadius: '50%', background: T.accentLight, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.accent, fontSize: 12, fontWeight: 700, flexShrink: 0 }}>
+                      {u.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ color: T.text, fontFamily: theme.fontBody, fontWeight: 600, fontSize: 14 }}>{u.name}</div>
+                      <div style={{ color: T.textSecondary, fontSize: 12, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{u.email}</div>
+                    </div>
+                    <select value={u.roleKey} onChange={e => changeUserRole(u.id, e.target.value)} style={{ background: T.bgCard, border: `1px solid ${T.border}`, borderRadius: 6, color: T.accent, padding: '5px 8px', fontSize: 12, fontFamily: theme.fontBody, cursor: 'pointer', flexShrink: 0, fontWeight: 600 }}>
+                      {roles.map(r => <option key={r.key} value={r.key}>{r.label}</option>)}
+                    </select>
+                    <button onClick={() => toggleUser(u.id)} style={{ background: u.active ? T.success + '22' : T.border, border: 'none', borderRadius: 100, padding: '4px 12px', cursor: 'pointer', color: u.active ? T.success : T.textSecondary, fontSize: 11, fontFamily: theme.fontBody, fontWeight: 600, flexShrink: 0, whiteSpace: 'nowrap' }}>
+                      {u.active ? 'Activo' : 'Inactivo'}
+                    </button>
+                    <button onClick={() => removeUser(u.id)} style={{ background: 'none', border: 'none', color: T.danger, cursor: 'pointer', padding: 4, display: 'flex', flexShrink: 0 }}><Trash2 size={13}/></button>
+                  </div>
+                ))}
+              </div>
+
+              {showUserForm && (
+                <div style={{ background: T.bg, border: `1px solid ${T.border}`, borderRadius: R, padding: 20 }}>
+                  <h4 style={{ color: T.text, fontFamily: theme.font, margin: '0 0 16px', fontSize: 16 }}>Nuevo usuario</h4>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 16px' }}>
+                    <FormInput label="Nombre completo" value={userForm.name} onChange={v => setUserForm(p => ({ ...p, name: v }))} placeholder="Ej. Juan López" theme={theme}/>
+                    <FormInput label="Correo electrónico" value={userForm.email} onChange={v => setUserForm(p => ({ ...p, email: v }))} type="email" placeholder="juan@esca.mx" theme={theme}/>
+                    <FormInput label="Contraseña temporal" value={userForm.password} onChange={v => setUserForm(p => ({ ...p, password: v }))} type="password" placeholder="Mínimo 8 caracteres" theme={theme}/>
+                    <FormSelect label="Rol" value={userForm.roleKey} onChange={v => setUserForm(p => ({ ...p, roleKey: v }))} options={roles.map(r => ({ value: r.key, label: r.label }))} theme={theme}/>
+                  </div>
+                  <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
+                    <Btn theme={theme} onClick={createUser}><CheckCircle size={14}/> Crear usuario</Btn>
+                    <Btn theme={theme} variant="ghost" onClick={() => { setShowUserForm(false); setUserForm({ name: '', email: '', password: '', roleKey: 'staff' }); }}>Cancelar</Btn>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ════ ROLES TAB ════ */}
+          {tab === 'roles' && (
+            <div>
+              {editingRoleKey === null ? (
+                <>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+                    <span style={{ color: T.textSecondary, fontSize: 13, fontFamily: theme.fontBody }}>Define qué módulos y acciones puede realizar cada rol</span>
+                    <Btn theme={theme} small onClick={openNewRole}><Plus size={14}/> Nuevo rol</Btn>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    {roles.map(r => {
+                      const userCount = teamUsers.filter(u => u.roleKey === r.key).length;
+                      const permCount = Object.values(r.perms).filter(Boolean).length;
+                      return (
+                        <div key={r.key} style={{ padding: '16px 18px', background: T.bg, borderRadius: R, border: `1px solid ${T.border}` }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+                            <div>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                                <Shield size={15} color={T.accent}/>
+                                <span style={{ color: T.text, fontFamily: theme.fontBody, fontWeight: 700, fontSize: 15 }}>{r.label}</span>
+                                <span style={{ background: T.accentLight, color: T.accent, borderRadius: 100, padding: '2px 9px', fontSize: 10, fontWeight: 700 }}>{userCount} usuario{userCount !== 1 ? 's' : ''}</span>
+                              </div>
+                              <span style={{ color: T.textSecondary, fontSize: 12, fontFamily: theme.fontBody }}>{r.modules.length} módulo{r.modules.length !== 1 ? 's' : ''} habilitados · {permCount} permiso{permCount !== 1 ? 's' : ''} activos</span>
+                            </div>
+                            <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+                              <Btn theme={theme} small variant="secondary" onClick={() => openEditRole(r)}><Edit2 size={12}/> Editar</Btn>
+                              <button onClick={() => deleteRole(r.key)} title={userCount > 0 ? `Eliminar (${userCount} usuario(s) serán reasignados)` : 'Eliminar rol'} style={{ background: 'none', border: `1px solid ${T.border}`, borderRadius: 6, color: T.danger, cursor: 'pointer', padding: '5px 8px', display: 'flex', alignItems: 'center' }}><Trash2 size={13}/></button>
+                            </div>
+                          </div>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+                            {ALL_MODULES_META.map(m => (
+                              <span key={m.id} style={{ padding: '3px 9px', borderRadius: 100, fontSize: 11, fontWeight: 600, background: r.modules.includes(m.id) ? T.accentLight : 'transparent', color: r.modules.includes(m.id) ? T.accent : T.textSecondary, border: `1px solid ${r.modules.includes(m.id) ? T.accent + '55' : T.border}`, opacity: r.modules.includes(m.id) ? 1 : 0.45 }}>
+                                {m.label}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </>
+              ) : (
+                /* ── Role Editor ── */
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 22 }}>
+                    <button onClick={cancelRoleEdit} style={{ background: 'none', border: `1px solid ${T.border}`, borderRadius: 6, color: T.textSecondary, cursor: 'pointer', padding: '6px 12px', fontSize: 13, fontFamily: theme.fontBody, display: 'flex', alignItems: 'center', gap: 4 }}><ChevronLeft size={14}/> Volver</button>
+                    <h4 style={{ color: T.text, fontFamily: theme.font, margin: 0, fontSize: 18 }}>{isNewRole ? 'Nuevo rol personalizado' : `Editar · ${roles.find(r => r.key === editingRoleKey)?.label}`}</h4>
+                  </div>
+
+                  <FormInput label="Nombre del rol" value={roleForm.label} onChange={v => setRoleForm(p => ({ ...p, label: v }))} placeholder="Ej. Capitán de sala, Cajero, Sommelier…" theme={theme}/>
+
+                  {/* Modules */}
+                  <div style={{ marginBottom: 22 }}>
+                    <label style={{ display: 'block', color: T.textSecondary, fontSize: 11, marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.8px', fontFamily: theme.fontBody, fontWeight: 600 }}>
+                      Módulos habilitados <span style={{ color: T.accent }}>({roleForm.modules.length}/{ALL_MODULES_META.length})</span>
+                    </label>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 7 }}>
+                      {ALL_MODULES_META.map(m => {
+                        const on = roleForm.modules.includes(m.id);
+                        return (
+                          <button key={m.id} onClick={() => toggleModule(m.id)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 13px', background: on ? T.accentLight : T.bg, border: `1.5px solid ${on ? T.accent : T.border}`, borderRadius: R, cursor: 'pointer', color: on ? T.accent : T.textSecondary, fontSize: 13, fontFamily: theme.fontBody, fontWeight: on ? 700 : 400, transition: 'all 0.12s', textAlign: 'left' }}>
+                            <div style={{ width: 15, height: 15, borderRadius: 4, background: on ? T.accent : 'transparent', border: `2px solid ${on ? T.accent : T.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all 0.12s' }}>
+                              {on && <svg width="9" height="9" viewBox="0 0 9 9"><polyline points="1.5,4.5 3.5,6.5 7.5,2" stroke="#fff" strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                            </div>
+                            {m.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Permissions */}
+                  <div style={{ marginBottom: 26 }}>
+                    <label style={{ display: 'block', color: T.textSecondary, fontSize: 11, marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.8px', fontFamily: theme.fontBody, fontWeight: 600 }}>
+                      Permisos de acción <span style={{ color: T.accent }}>({Object.values(roleForm.perms).filter(Boolean).length}/{ALL_PERMS_META.length})</span>
+                    </label>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                      {ALL_PERMS_META.map(pm => {
+                        const on = !!roleForm.perms[pm.key];
+                        return (
+                          <button key={pm.key} onClick={() => togglePerm(pm.key)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', background: on ? T.accentLight : T.bg, border: `1.5px solid ${on ? T.accent + '66' : T.border}`, borderRadius: R, cursor: 'pointer', color: on ? T.text : T.textSecondary, fontSize: 13, fontFamily: theme.fontBody, textAlign: 'left', transition: 'all 0.12s' }}>
+                            <div style={{ width: 16, height: 16, borderRadius: 4, background: on ? T.accent : 'transparent', border: `2px solid ${on ? T.accent : T.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all 0.12s' }}>
+                              {on && <svg width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2" stroke="#fff" strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                            </div>
+                            {pm.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: 10 }}>
+                    <Btn theme={theme} onClick={saveRole}><CheckCircle size={14}/> {isNewRole ? 'Crear rol' : 'Guardar cambios'}</Btn>
+                    <Btn theme={theme} variant="ghost" onClick={cancelRoleEdit}>Cancelar</Btn>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
