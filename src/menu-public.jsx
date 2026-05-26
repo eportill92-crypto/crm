@@ -53,10 +53,13 @@ export default function MenuPublic() {
   const [scrolled, setScrolled] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  const scrollRef = React.useRef(null);
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 100);
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    const el = scrollRef.current;
+    if (!el) return;
+    const onScroll = () => setScrolled(el.scrollTop > 100);
+    el.addEventListener('scroll', onScroll, { passive: true });
+    return () => el.removeEventListener('scroll', onScroll);
   }, []);
 
   const featured = MENU.filter(d => d.star);
@@ -76,7 +79,7 @@ export default function MenuPublic() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F8F7F4', fontFamily: REST.fontBody, color: '#1C1C1C' }}>
+    <div ref={scrollRef} style={{ height: '100vh', overflowY: 'auto', WebkitOverflowScrolling: 'touch', background: '#F8F7F4', fontFamily: REST.fontBody, color: '#1C1C1C' }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@400;500;600&display=swap');
         *{box-sizing:border-box}
@@ -103,7 +106,7 @@ export default function MenuPublic() {
 
       {/* ── Sticky category filter ── */}
       <div style={{ position:'sticky', top:0, zIndex:20, background: scrolled ? 'rgba(248,247,244,0.96)' : '#F8F7F4', backdropFilter: scrolled ? 'blur(10px)' : 'none', borderBottom: scrolled ? '1px solid rgba(0,0,0,0.07)' : '1px solid transparent', transition:'all 0.2s', padding:'10px 16px' }}>
-        <div style={{ maxWidth:740, margin:'0 auto', display:'flex', gap:7, overflowX:'auto', paddingBottom:2 }}>
+        <div style={{ maxWidth:740, margin:'0 auto', display:'flex', gap:7, overflowX:'auto', WebkitOverflowScrolling:'touch', paddingBottom:2 }}>
           {CATS.map(c => (
             <button key={c.id} onClick={() => setCat(c.id)} style={{ padding:'7px 17px', borderRadius:100, border:`1.5px solid ${cat === c.id ? REST.accent : '#E0DDD6'}`, background: cat === c.id ? REST.accent : '#fff', color: cat === c.id ? '#fff' : '#777', cursor:'pointer', fontSize:13, fontFamily:REST.fontBody, fontWeight: cat === c.id ? 600 : 400, whiteSpace:'nowrap', transition:'all 0.15s', flexShrink:0 }}>
               {c.emoji} {c.label}
@@ -122,7 +125,7 @@ export default function MenuPublic() {
               <span style={{ fontSize:20 }}>⭐</span>
               <h2 style={{ fontFamily:REST.font, fontSize:23, fontWeight:700, color:'#1C1C1C', margin:0 }}>Destacados del chef</h2>
             </div>
-            <div style={{ display:'flex', gap:12, overflowX:'auto', paddingBottom:8 }}>
+            <div style={{ display:'flex', gap:12, overflowX:'auto', WebkitOverflowScrolling:'touch', paddingBottom:8 }}>
               {featured.map(d => (
                 <div key={d.id} style={{ minWidth:215, background:'#fff', borderRadius:20, padding:'20px 18px', border:`1.5px solid ${REST.accent}22`, boxShadow:`0 4px 20px ${REST.accent}12`, flexShrink:0 }}>
                   <div style={{ fontFamily:REST.font, fontSize:18, fontWeight:600, color:'#1C1C1C', marginBottom:7, lineHeight:1.3 }}>{d.name}</div>

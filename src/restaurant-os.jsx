@@ -11,6 +11,8 @@ const KEYFRAMES = `
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
 @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 @keyframes dotBounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}
+*{-webkit-overflow-scrolling:touch;}
+button,a,select,input,textarea{touch-action:manipulation;}
 `;
 
 // ─── Themes ──────────────────────────────────────────────────────────────────
@@ -156,11 +158,11 @@ function Modal({ open, onClose, title, children, theme, isMobile, wide }) {
   const innerStyle = isMobile ? {
     position: 'fixed', bottom: 0, left: 0, right: 0, background: T.bgCard,
     borderRadius: '20px 20px 0 0', padding: '24px 20px 32px', animation: 'slideUp 0.3s ease',
-    maxHeight: '90vh', overflowY: 'auto', zIndex: 1001,
+    maxHeight: '90vh', overflowY: 'auto', WebkitOverflowScrolling: 'touch', zIndex: 1001,
   } : {
     background: T.bgCard, borderRadius: R, padding: 28,
     width: wide ? '90vw' : '90vw', maxWidth: wide ? 800 : 540,
-    maxHeight: '85vh', overflowY: 'auto', animation: 'fadeInUp 0.25s ease',
+    maxHeight: '85vh', overflowY: 'auto', WebkitOverflowScrolling: 'touch', animation: 'fadeInUp 0.25s ease',
   };
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 1000, display: 'flex', alignItems: isMobile ? 'flex-end' : 'center', justifyContent: 'center' }}
@@ -1657,7 +1659,7 @@ function ModuleWhatsApp({ theme, addToast, isMobile, perms }) {
     setMsgInput('');
   };
   return (
-    <div style={{animation:'fadeInUp 0.3s ease',height:'calc(100vh - 130px)',display:'flex',flexDirection:'column'}}>
+    <div style={{animation:'fadeInUp 0.3s ease',display:'flex',flexDirection:'column',height:isMobile?'auto':'calc(100vh - 130px)'}}>
       <h2 style={{color:T.text,fontFamily:theme.font,fontSize:26,fontWeight:700,marginBottom:16}}>WhatsApp Hub</h2>
       <div style={{display:'flex',gap:4,borderBottom:`1px solid ${T.border}`,marginBottom:16}}>
         {[['conversations','Conversaciones'],['automations','Automatizaciones'],['stats','Estadísticas']].map(([k,l])=>(
@@ -1665,8 +1667,8 @@ function ModuleWhatsApp({ theme, addToast, isMobile, perms }) {
         ))}
       </div>
       {tab === 'conversations' && (
-        <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'280px 1fr',gap:0,flex:1,minHeight:0,border:`1px solid ${T.border}`,borderRadius:R,overflow:'hidden'}}>
-          <div style={{borderRight:`1px solid ${T.border}`,overflowY:'auto'}}>
+        <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'280px 1fr',gap:0,flex:1,minHeight:isMobile?undefined:0,border:`1px solid ${T.border}`,borderRadius:R,overflow:'hidden'}}>
+          <div style={{borderRight:`1px solid ${T.border}`,overflowY:'auto',WebkitOverflowScrolling:'touch',maxHeight:isMobile?'60vh':undefined}}>
             {convs.map(c=>(
               <div key={c.id} onClick={()=>setSelectedConv(c.id)} style={{padding:'14px 16px',cursor:'pointer',background:selectedConv===c.id?T.accentLight:'transparent',borderBottom:`1px solid ${T.border}`,display:'flex',gap:12,alignItems:'flex-start',transition:'background 0.15s'}}>
                 <div style={{width:40,height:40,borderRadius:'50%',background:T.accent,display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',fontWeight:700,fontSize:14,flexShrink:0}}>{c.name.split(' ').map(n=>n[0]).join('')}</div>
@@ -1682,7 +1684,7 @@ function ModuleWhatsApp({ theme, addToast, isMobile, perms }) {
             ))}
           </div>
           <div style={{display:'flex',flexDirection:'column',background:T.bg}}>
-            <div style={{flex:1,overflowY:'auto',padding:16,display:'flex',flexDirection:'column',gap:10}}>
+            <div style={{flex:1,overflowY:'auto',WebkitOverflowScrolling:'touch',padding:16,display:'flex',flexDirection:'column',gap:10,maxHeight:isMobile?'55vh':undefined}}>
               {convMessages.map((m,i)=>(
                 <div key={i} style={{display:'flex',justifyContent:m.role==='restaurant'?'flex-end':'flex-start'}}>
                   <div style={{maxWidth:'70%',background:m.role==='restaurant'?T.accent:T.bgCard,color:m.role==='restaurant'?'#fff':T.text,borderRadius:m.role==='restaurant'?`${R} ${R} 4px ${R}`:`4px ${R} ${R} ${R}`,padding:'10px 14px',border:m.role!=='restaurant'?`1px solid ${T.border}`:'none'}}>
@@ -1905,7 +1907,7 @@ function ModuleCopilot({ theme, addToast, isMobile, perms }) {
   }
 
   return (
-    <div style={{animation:'fadeInUp 0.3s ease',display:'flex',flexDirection:'column',height:'calc(100vh - 130px)'}}>
+    <div style={{animation:'fadeInUp 0.3s ease',display:'flex',flexDirection:'column',height:isMobile?'auto':'calc(100vh - 130px)'}}>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
         <div style={{display:'flex',alignItems:'center',gap:10}}>
           <Bot size={22} color={T.accent}/>
@@ -1914,7 +1916,7 @@ function ModuleCopilot({ theme, addToast, isMobile, perms }) {
         </div>
         <button onClick={()=>{localStorage.removeItem('restoos_api_key');setConfigured(false);setApiKey('');setMessages([]);}} style={{background:'none',border:`1px solid ${T.border}`,color:T.textSecondary,borderRadius:R,padding:'4px 10px',cursor:'pointer',fontSize:12,fontFamily:theme.fontBody}}>Cambiar API Key</button>
       </div>
-      <div style={{flex:1,overflowY:'auto',display:'flex',flexDirection:'column',gap:12,paddingBottom:8}}>
+      <div style={{flex:1,overflowY:'auto',WebkitOverflowScrolling:'touch',display:'flex',flexDirection:'column',gap:12,paddingBottom:8,minHeight:isMobile?'50vh':undefined,maxHeight:isMobile?'65vh':undefined}}>
         {messages.length === 0 && (
           <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',flex:1,gap:16}}>
             <Bot size={48} color={T.accentLight||'#E8F0EC'}/>
@@ -2196,7 +2198,7 @@ function TeamPanel({ open, onClose, theme, restaurant, addToast }) {
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
       onClick={e => e.target === e.currentTarget && onClose()}>
-      <div style={{ background: T.bgCard, borderRadius: R, width: '100%', maxWidth: 740, maxHeight: '90vh', display: 'flex', flexDirection: 'column', animation: 'fadeInUp 0.25s ease', overflow: 'hidden' }}>
+      <div style={{ background: T.bgCard, borderRadius: R, width: '100%', maxWidth: 740, height: '90vh', display: 'flex', flexDirection: 'column', animation: 'fadeInUp 0.25s ease', overflow: 'hidden' }}>
 
         {/* ── Header + Tabs ── */}
         <div style={{ padding: '22px 26px 0', flexShrink: 0 }}>
@@ -2215,7 +2217,7 @@ function TeamPanel({ open, onClose, theme, restaurant, addToast }) {
         </div>
 
         {/* ── Body ── */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '20px 26px 26px' }}>
+        <div style={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch', padding: '20px 26px 26px' }}>
 
           {/* ════ USERS TAB ════ */}
           {tab === 'users' && (
@@ -2460,7 +2462,7 @@ export default function RestaurantOS({ onLogout, user }) {
           <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: 11 }}>Experiencia Mediterránea</div>
         </>}
       </div>
-      <nav style={{ flex: 1, padding: '8px 0', overflowY: 'auto' }}>
+      <nav style={{ flex: 1, padding: '8px 0', overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
         {visibleNav.map(item => <NavItem key={item.id} item={item} collapsed={collapsed}/>)}
       </nav>
       <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', padding: collapsed ? '12px 0' : '14px 16px' }}>
@@ -2525,7 +2527,7 @@ export default function RestaurantOS({ onLogout, user }) {
         </div>
 
         {/* Content */}
-        <main style={{ flex: 1, overflowY: 'auto', padding: isMobile ? 12 : 24, paddingBottom: isMobile ? 'calc(68px + env(safe-area-inset-bottom))' : 24 }}>
+        <main style={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch', overscrollBehaviorY: 'contain', padding: isMobile ? 12 : 24, paddingBottom: isMobile ? 'calc(68px + env(safe-area-inset-bottom))' : 24 }}>
           {renderModule()}
         </main>
       </div>
