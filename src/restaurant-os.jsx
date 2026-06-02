@@ -2491,10 +2491,10 @@ export default function RestaurantOS({ onLogout, user, stagingOffset }) {
   const SidebarContent = ({ collapsed = false }) => (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div style={{ padding: collapsed ? '18px 0' : '20px 16px', borderBottom: 'rgba(255,255,255,0.1) 1px solid', textAlign: collapsed ? 'center' : 'left' }}>
-        <div style={{ width: 36, height: 36, borderRadius: '10px', background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontFamily: theme.font, fontWeight: 700, fontSize: 20, marginBottom: collapsed ? 0 : 8, margin: collapsed ? '0 auto' : undefined }}>E</div>
+        <div style={{ width: 36, height: 36, borderRadius: '10px', background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontFamily: theme.font, fontWeight: 700, fontSize: 20, marginBottom: collapsed ? 0 : 8, margin: collapsed ? '0 auto' : undefined }}>{user?.restaurant?.[0]?.toUpperCase() || 'R'}</div>
         {!collapsed && <>
-          <div style={{ color: '#fff', fontFamily: theme.font, fontSize: 18, fontWeight: 700 }}>ESCA</div>
-          <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: 11 }}>Experiencia Mediterránea</div>
+          <div style={{ color: '#fff', fontFamily: theme.font, fontSize: 18, fontWeight: 700 }}>{user?.restaurant || 'Mi Restaurante'}</div>
+          <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: 11 }}>{user?.email || ''}</div>
         </>}
       </div>
       <nav style={{ flex: 1, padding: '8px 0', overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
@@ -2539,8 +2539,8 @@ export default function RestaurantOS({ onLogout, user, stagingOffset }) {
         <div style={{ height: 60, background: T.bgCard, borderBottom: `1px solid ${T.border}`, display: 'flex', alignItems: 'center', padding: '0 16px', gap: 10, flexShrink: 0, position: 'sticky', top: 0, zIndex: 100 }}>
           {isMobile && <button onClick={() => setMobileDrawerOpen(true)} style={{ background: 'none', border: 'none', color: T.text, cursor: 'pointer', padding: 4, display: 'flex' }}><Menu size={22}/></button>}
           <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ width: 32, height: 32, borderRadius: 8, background: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontFamily: theme.font, fontSize: 18, fontWeight: 700 }}>E</div>
-            {!isMobile && <span style={{ color: T.text, fontFamily: theme.font, fontSize: 20, fontWeight: 700 }}>ESCA</span>}
+            <div style={{ width: 32, height: 32, borderRadius: 8, background: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontFamily: theme.font, fontSize: 18, fontWeight: 700 }}>{user?.restaurant?.[0]?.toUpperCase() || 'R'}</div>
+            {!isMobile && <span style={{ color: T.text, fontFamily: theme.font, fontSize: 20, fontWeight: 700 }}>{user?.restaurant || 'Mi Restaurante'}</span>}
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, position: 'relative' }}>
             <button onClick={() => setThemeMenuOpen(!themeMenuOpen)} style={{ background: 'none', border: `1px solid ${T.border}`, borderRadius: R, color: T.textSecondary, cursor: 'pointer', padding: '5px 8px', display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, fontFamily: theme.fontBody }}>
