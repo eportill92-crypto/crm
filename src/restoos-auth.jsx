@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase, hasSupabase } from './supabase';
-import { createUserInSupabase, fetchUsers, updateUserProfile, fetchRestaurants, saveRestaurant } from './api';
+import { createUserInSupabase, fetchUsers, updateUserProfile, fetchRestaurants, saveRestaurant as saveRestaurantApi } from './api';
 
 // ─────────────────────────────────────────────
 // DESIGN TOKENS
@@ -896,25 +896,26 @@ function SuperAdminPanel({ onLogout, isMobile }) {
     setShowRestaurantModal(true);
   };
   const openEditRestaurant = (r) => { setEditRestaurant({ ...r }); setShowRestaurantModal(true); };
-  const toggleRestaurantStatus = (id) => {
-    setRestaurants(prev => prev.map(r => {
-      if (r.id !== id) return r;
-      const next = r.status === 'active' ? 'suspended' : 'active';
-      return { ...r, status: next };
-    }));
+  const toggleRestaurantStatus = async (id) => {
     const r = restaurants.find(r => r.id === id);
-    addToast(`Restaurante '${r.name}' ${r.status === 'active' ? 'suspendido' : 'activado'}`, 'success');
+    const next = r.status === 'active' ? 'suspended' : 'active';
+    await saveRestaurantApi({ id, status: next });
+    setRestaurants(prev => prev.map(r2 => r2.id !== id ? r2 : { ...r2, status: next }));
+    addToast(`Restaurante '${r.name}' ${next === 'active' ? 'activado' : 'suspendido'}`, 'success');
   };
-  const confirmDeleteRestaurant = () => {
+  const confirmDeleteRestaurant = async () => {
+    await saveRestaurantApi({ id: deleteRestaurant.id, status: 'inactive' });
     setRestaurants(prev => prev.filter(r => r.id !== deleteRestaurant.id));
     addToast(`Restaurante '${deleteRestaurant.name}' eliminado`, 'success');
     setDeleteRestaurant(null);
   };
-  const saveRestaurant = (data) => {
+  const saveRestaurant = async (data) => {
+    const { data: saved, error } = await saveRestaurantApi(data);
+    if (error) { addToast(`Error: ${error.message}`, 'error'); return; }
     if (data.id) {
-      setRestaurants(prev => prev.map(r => r.id === data.id ? data : r));
+      setRestaurants(prev => prev.map(r => r.id === data.id ? { ...r, ...saved } : r));
     } else {
-      setRestaurants(prev => [...prev, { ...data, id: Date.now() }]);
+      setRestaurants(prev => [...prev, saved]);
     }
     setShowRestaurantModal(false);
     addToast('Restaurante guardado exitosamente', 'success');
