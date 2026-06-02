@@ -65,6 +65,7 @@ export async function saveRestaurant(restaurantData) {
     const { data, error } = await supabase.from('restaurants').update(updates).eq('id', id).select().single();
     return { data, error };
   }
-  const { data, error } = await supabase.from('restaurants').insert(restaurantData).select().single();
+  const { id: _id, ...insertData } = restaurantData;
+  const { data, error } = await supabase.from('restaurants').insert(insertData).select().single();
   return { data, error };
 }
