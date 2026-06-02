@@ -592,6 +592,11 @@ function LoginPage({ onLogin, isMobile }) {
             </div>
           )}
 
+          {/* Supabase mode indicator — remove after debugging */}
+          <div style={{ textAlign: 'center', fontSize: 11, color: hasSupabase ? '#4CAF50' : '#FF9800', fontFamily: 'DM Sans, sans-serif', marginTop: 4 }}>
+            {hasSupabase ? '● Conectado a Supabase' : '● Modo demo (sin conexión a BD)'}
+          </div>
+
           {/* Submit */}
           <button
             type="submit"
