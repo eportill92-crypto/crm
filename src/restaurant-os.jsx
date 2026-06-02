@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { createUserInSupabase, fetchUsers, updateUserProfile } from './api';
 import { LayoutDashboard, Users, UtensilsCrossed, ShoppingCart, BarChart2, Cpu, Package, MessageCircle, Star, Bot, Palette, ChevronLeft, ChevronRight, Menu, X, Bell, MoreVertical, TrendingUp, TrendingDown, AlertCircle, CheckCircle, Send, Plus, Edit2, Trash2, Eye, Download, Copy, Mail, QrCode, RefreshCw, UserPlus, Shield } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell, AreaChart, Area, Legend } from 'recharts';
 
@@ -2124,7 +2125,7 @@ const DEFAULT_ROLES = [
   { key: 'staff', label: 'Staff', modules: [...ROLE_MODULES.staff], perms: { ...ROLE_PERMS.staff } },
 ];
 
-function TeamPanel({ open, onClose, theme, restaurant, addToast }) {
+function TeamPanel({ open, onClose, theme, restaurant, currentUser, addToast }) {
   const T = theme.palette; const R = theme.borderRadius;
   const [tab, setTab] = useState('users');
   const [teamUsers, setTeamUsers] = useState(INITIAL_TEAM);
@@ -2139,29 +2140,65 @@ function TeamPanel({ open, onClose, theme, restaurant, addToast }) {
   const [isNewRole, setIsNewRole] = useState(false);
   const [roleForm, setRoleForm] = useState({ label: '', modules: [], perms: {} });
 
+  // Load team from Supabase when restaurant_id is available
+  useEffect(() => {
+    if (!currentUser?.restaurant_id) return;
+    fetchUsers({ restaurantId: currentUser.restaurant_id }).then(({ data }) => {
+      if (data && data.length > 0) {
+        setTeamUsers(data
+          .filter(u => u.id !== currentUser.id)
+          .map(u => ({
+            id: u.id,
+            name: u.name,
+            email: u.email || '—',
+            roleKey: u.role,
+            active: u.status !== 'inactive',
+          })));
+      }
+    });
+  }, [currentUser?.restaurant_id, currentUser?.id]);
+
   if (!open) return null;
 
   // ── User handlers ──
-  const createUser = () => {
+  const createUser = async () => {
     if (!userForm.name.trim() || !userForm.email.trim() || !userForm.password.trim()) { addToast('Completa todos los campos', 'error'); return; }
     if (userForm.password.length < 8) { addToast('La contraseña debe tener al menos 8 caracteres', 'error'); return; }
     if (teamUsers.find(u => u.email.toLowerCase() === userForm.email.toLowerCase())) { addToast('Ese correo ya está registrado', 'error'); return; }
-    setTeamUsers(p => [...p, { id: Date.now(), name: userForm.name.trim(), email: userForm.email.trim().toLowerCase(), roleKey: userForm.roleKey, active: true }]);
+
+    if (currentUser?.restaurant_id) {
+      const { data, error } = await createUserInSupabase({
+        email: userForm.email.trim().toLowerCase(),
+        password: userForm.password,
+        name: userForm.name.trim(),
+        role: userForm.roleKey,
+        restaurantId: currentUser.restaurant_id,
+      });
+      if (error) { addToast(`Error: ${error}`, 'error'); return; }
+      setTeamUsers(p => [...p, { id: data.id, name: data.name, email: data.email, roleKey: userForm.roleKey, active: true }]);
+    } else {
+      setTeamUsers(p => [...p, { id: Date.now(), name: userForm.name.trim(), email: userForm.email.trim().toLowerCase(), roleKey: userForm.roleKey, active: true }]);
+    }
     setUserForm({ name: '', email: '', password: '', roleKey: 'staff' });
     setShowUserForm(false);
     addToast(`Usuario ${userForm.name.trim()} creado`);
   };
-  const toggleUser = (id) => {
+  const toggleUser = async (id) => {
     const u = teamUsers.find(u => u.id === id);
+    if (currentUser?.restaurant_id) await updateUserProfile(id, { status: u.active ? 'inactive' : 'active' });
     setTeamUsers(p => p.map(u => u.id === id ? { ...u, active: !u.active } : u));
     addToast(`${u.name} ${u.active ? 'desactivado' : 'activado'}`);
   };
-  const removeUser = (id) => {
+  const removeUser = async (id) => {
     const u = teamUsers.find(u => u.id === id);
+    if (currentUser?.restaurant_id) await updateUserProfile(id, { status: 'inactive' });
     setTeamUsers(p => p.filter(u => u.id !== id));
     addToast(`${u.name} eliminado del equipo`, 'warning');
   };
-  const changeUserRole = (id, roleKey) => setTeamUsers(p => p.map(u => u.id === id ? { ...u, roleKey } : u));
+  const changeUserRole = async (id, roleKey) => {
+    if (currentUser?.restaurant_id) await updateUserProfile(id, { role: roleKey });
+    setTeamUsers(p => p.map(u => u.id === id ? { ...u, roleKey } : u));
+  };
 
   // ── Role handlers ──
   const openEditRole = (r) => { setRoleForm({ label: r.label, modules: [...r.modules], perms: { ...r.perms } }); setEditingRoleKey(r.key); setIsNewRole(false); };
@@ -2550,7 +2587,7 @@ export default function RestaurantOS({ onLogout, user, stagingOffset }) {
         </div>
       )}
 
-      {role === 'owner' && <TeamPanel open={showTeamPanel} onClose={() => setShowTeamPanel(false)} theme={theme} restaurant={user?.restaurant || 'ESCA'} addToast={addToast}/>}
+      {role === 'owner' && <TeamPanel open={showTeamPanel} onClose={() => setShowTeamPanel(false)} theme={theme} restaurant={user?.restaurant || 'ESCA'} currentUser={user} addToast={addToast}/>}
       <ToastContainer toasts={toasts} theme={theme}/>
     </div>
   );

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase, hasSupabase } from './supabase';
+import { createUserInSupabase, fetchUsers, updateUserProfile, fetchRestaurants, saveRestaurant } from './api';
 
 // ─────────────────────────────────────────────
 // DESIGN TOKENS
@@ -392,6 +393,7 @@ function LoginPage({ onLogin, isMobile }) {
         role: profile?.role || 'staff',
         name: profile?.name || data.user.email,
         restaurant: profile?.restaurants?.name || null,
+        restaurant_id: profile?.restaurant_id || null,
         accent: profile?.restaurants?.accent || '#2B5F4A',
       };
       setLoading(false);
@@ -592,11 +594,6 @@ function LoginPage({ onLogin, isMobile }) {
             </div>
           )}
 
-          {/* Supabase mode indicator — remove after debugging */}
-          <div style={{ textAlign: 'center', fontSize: 11, color: hasSupabase ? '#4CAF50' : '#FF9800', fontFamily: 'DM Sans, sans-serif', marginTop: 4 }}>
-            {hasSupabase ? '● Conectado a Supabase' : '● Modo demo (sin conexión a BD)'}
-          </div>
-
           {/* Submit */}
           <button
             type="submit"
@@ -696,6 +693,27 @@ function SuperAdminPanel({ onLogout, isMobile }) {
   const [packages, setPackages] = useState(PACKAGES_INITIAL);
   const [editPackage, setEditPackage] = useState(null);
   const [showPackageModal, setShowPackageModal] = useState(false);
+
+  // Load live data from Supabase on mount
+  useEffect(() => {
+    (async () => {
+      const [{ data: rData }, { data: uData }] = await Promise.all([
+        fetchRestaurants(),
+        fetchUsers(),
+      ]);
+      if (rData) setRestaurants(rData);
+      if (uData) setUsers(uData.map(u => ({
+        id: u.id,
+        name: u.name,
+        email: u.email || '—',
+        role: u.role,
+        restaurantId: u.restaurant_id,
+        restaurant: u.restaurants?.name || '—',
+        status: u.status || 'active',
+        lastSeen: u.created_at ? new Date(u.created_at).toLocaleDateString('es-MX') : '—',
+      })));
+    })();
+  }, []);
 
   const navItems = [
     { id: 'overview', icon: '📊', label: 'Overview' },
@@ -969,25 +987,51 @@ function SuperAdminPanel({ onLogout, isMobile }) {
 
   // ── Tab: Users ──
   const openNewUser = () => {
-    setEditUser({ id: null, name: '', email: '', password: '', role: 'staff', restaurant: '—', status: 'active', lastSeen: 'Nunca' });
+    setEditUser({ id: null, name: '', email: '', password: '', role: 'staff', restaurantId: null, status: 'active', lastSeen: 'Nunca' });
     setShowUserModal(true);
   };
   const openEditUser = (u) => { setEditUser({ ...u }); setShowUserModal(true); };
-  const toggleUserStatus = (id) => {
-    setUsers(prev => prev.map(u => u.id !== id ? u : { ...u, status: u.status === 'active' ? 'inactive' : 'active' }));
+  const toggleUserStatus = async (id) => {
     const u = users.find(u => u.id === id);
-    addToast(`Usuario ${u.name} ${u.status === 'active' ? 'desactivado' : 'activado'}`, 'success');
+    const newStatus = u.status === 'active' ? 'inactive' : 'active';
+    await updateUserProfile(id, { status: newStatus });
+    setUsers(prev => prev.map(u2 => u2.id !== id ? u2 : { ...u2, status: newStatus }));
+    addToast(`Usuario ${u.name} ${newStatus === 'active' ? 'activado' : 'desactivado'}`, 'success');
   };
-  const confirmDeleteUser = () => {
+  const confirmDeleteUser = async () => {
+    await updateUserProfile(deleteUser.id, { status: 'inactive' });
     setUsers(prev => prev.filter(u => u.id !== deleteUser.id));
-    addToast(`Usuario '${deleteUser.name}' eliminado`, 'success');
+    addToast(`Usuario '${deleteUser.name}' desactivado`, 'success');
     setDeleteUser(null);
   };
-  const saveUser = (data) => {
+  const saveUser = async (data) => {
     if (data.id) {
-      setUsers(prev => prev.map(u => u.id === data.id ? { ...data } : u));
+      const { error } = await updateUserProfile(data.id, {
+        name: data.name,
+        role: data.role,
+        status: data.status,
+        restaurant_id: data.restaurantId || null,
+      });
+      if (error) { addToast('Error al actualizar usuario', 'error'); return; }
+      setUsers(prev => prev.map(u => u.id === data.id ? {
+        ...data,
+        restaurant: restaurants.find(r => r.id === data.restaurantId)?.name || '—',
+      } : u));
     } else {
-      setUsers(prev => [...prev, { ...data, id: Date.now() }]);
+      const { data: newUser, error } = await createUserInSupabase({
+        email: data.email,
+        password: data.password,
+        name: data.name,
+        role: data.role,
+        restaurantId: data.restaurantId || null,
+      });
+      if (error) { addToast(`Error: ${error}`, 'error'); return; }
+      setUsers(prev => [...prev, {
+        ...data,
+        id: newUser.id,
+        restaurant: restaurants.find(r => r.id === data.restaurantId)?.name || '—',
+        lastSeen: 'Nunca',
+      }]);
     }
     setShowUserModal(false);
     addToast('Usuario guardado exitosamente', 'success');
@@ -1356,8 +1400,8 @@ function UserModal({ data, isMobile, restaurants, onSave, onClose }) {
   const isNew = !form.id;
 
   const restaurantOptions = [
-    { value: '—', label: '— (Sin restaurante)' },
-    ...restaurants.map(r => ({ value: r.name, label: r.name })),
+    { value: '', label: '— (Sin restaurante)' },
+    ...restaurants.map(r => ({ value: r.id, label: r.name })),
   ];
 
   return (
@@ -1398,8 +1442,8 @@ function UserModal({ data, isMobile, restaurants, onSave, onClose }) {
         </div>
         <FormField label="Restaurante">
           <SelectInput
-            value={form.restaurant}
-            onChange={v => set('restaurant', v)}
+            value={form.restaurantId || ''}
+            onChange={v => set('restaurantId', v || null)}
             options={restaurantOptions}
           />
         </FormField>
@@ -1679,6 +1723,7 @@ async function buildUserFromSession(session) {
     role: profile?.role || 'staff',
     name: profile?.name || session.user.email,
     restaurant: profile?.restaurants?.name || null,
+    restaurant_id: profile?.restaurant_id || null,
     accent: profile?.restaurants?.accent || '#2B5F4A',
   };
 }
