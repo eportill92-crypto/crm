@@ -356,6 +356,7 @@ function LoginPage({ onLogin, isMobile }) {
   const [password, setPassword] = useState('');
   const [showPw, setShowPw] = useState(false);
   const [error, setError] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -376,6 +377,7 @@ function LoginPage({ onLogin, isMobile }) {
       const { data, error: authErr } = await supabase.auth.signInWithPassword({ email, password });
       if (authErr || !data.user) {
         setError(true);
+        setErrorMsg(authErr?.message || 'Error desconocido');
         setLoading(false);
         return;
       }
@@ -586,7 +588,7 @@ function LoginPage({ onLogin, isMobile }) {
               color: COLORS.danger, fontSize: 13, fontFamily: 'DM Sans, sans-serif',
               animation: 'slideDown 0.2s ease',
             }}>
-              Credenciales incorrectas. Verifica tu email y contraseña.
+              {errorMsg || 'Credenciales incorrectas. Verifica tu email y contraseña.'}
             </div>
           )}
 
