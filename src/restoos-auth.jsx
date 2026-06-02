@@ -384,7 +384,7 @@ function LoginPage({ onLogin, isMobile }) {
       }
       const { data: profile } = await supabase
         .from('profiles')
-        .select('role, name, restaurant_id, restaurants(name, accent)')
+        .select('role, name, restaurant_id, restaurants(name, accent, modules)')
         .eq('id', data.user.id)
         .single();
       const user = {
@@ -395,6 +395,7 @@ function LoginPage({ onLogin, isMobile }) {
         restaurant: profile?.restaurants?.name || null,
         restaurant_id: profile?.restaurant_id || null,
         accent: profile?.restaurants?.accent || '#2B5F4A',
+        modules: profile?.restaurants?.modules || null,
       };
       setLoading(false);
       onLogin(user);
@@ -1726,6 +1727,7 @@ async function buildUserFromSession(session) {
     restaurant: profile?.restaurants?.name || null,
     restaurant_id: profile?.restaurant_id || null,
     accent: profile?.restaurants?.accent || '#2B5F4A',
+    modules: profile?.restaurants?.modules || null,
   };
 }
 

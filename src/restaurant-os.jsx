@@ -2411,7 +2411,23 @@ function TeamPanel({ open, onClose, theme, restaurant, currentUser, addToast }) 
 // MAIN SHELL
 // ════════════════════════════════════════════════════════════════════════════════
 export default function RestaurantOS({ onLogout, user, stagingOffset }) {
-  const [theme, setTheme] = useState(THEMES.esca);
+  const [theme, setTheme] = useState(() => {
+    const base = THEMES.esca;
+    const accent = user?.accent;
+    if (!accent || accent === '#2B5F4A') return base;
+    return {
+      ...base,
+      palette: {
+        ...base.palette,
+        accent,
+        accentLight: accent + '22',
+        accentHover: accent + 'dd',
+        bgSidebar: accent,
+        bgSidebarHover: accent + 'bb',
+        chartPrimary: accent,
+      }
+    };
+  });
   const [activeModule, setActiveModule] = useState('dashboard');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
@@ -2423,7 +2439,9 @@ export default function RestaurantOS({ onLogout, user, stagingOffset }) {
 
   const role = user?.role || 'staff';
   const perms = ROLE_PERMS[role] || ROLE_PERMS.staff;
-  const allowedMods = ROLE_MODULES[role] || ROLE_MODULES.staff;
+  const restaurantMods = user?.modules;
+  const allowedMods = (ROLE_MODULES[role] || ROLE_MODULES.staff)
+    .filter(m => !restaurantMods || restaurantMods.includes(m));
 
   // If current module is not allowed for this role, reset to dashboard
   useEffect(() => {
