@@ -4,18 +4,18 @@
 
 # ── Production (main branch) ──────────────────────────────────────────────────
 [context.production]
-  environment = { REACT_APP_ENV = "production", REACT_APP_MENU_URL = "https://menu.comensaia.com" }
+  environment = { REACT_APP_ENV = "production", REACT_APP_MENU_URL = "https://menu.comensaia.com", REACT_APP_SUPABASE_URL = "https://pbdzfisqosqrevttgmyv.supabase.co", REACT_APP_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBiZHpmaXNxb3NxcmV2dHRnbXl2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0MDgwOTcsImV4cCI6MjA5NTk4NDA5N30.44clnfwRL_OnXJACgnrx7wYaDR4__0KlIMQ8dwir0bo" }
 
 # ── Staging (staging branch) ──────────────────────────────────────────────────
 [context.staging]
-  environment = { REACT_APP_ENV = "staging", REACT_APP_MENU_URL = "https://menu-staging.comensaia.com" }
+  environment = { REACT_APP_ENV = "staging", REACT_APP_MENU_URL = "https://menu-staging.comensaia.com", REACT_APP_SUPABASE_URL = "https://pbdzfisqosqrevttgmyv.supabase.co", REACT_APP_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBiZHpmaXNxb3NxcmV2dHRnbXl2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0MDgwOTcsImV4cCI6MjA5NTk4NDA5N30.44clnfwRL_OnXJACgnrx7wYaDR4__0KlIMQ8dwir0bo" }
 
 # ── Feature branches / PRs ────────────────────────────────────────────────────
 [context.deploy-preview]
-  environment = { REACT_APP_ENV = "preview" }
+  environment = { REACT_APP_ENV = "preview", REACT_APP_SUPABASE_URL = "https://pbdzfisqosqrevttgmyv.supabase.co", REACT_APP_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBiZHpmaXNxb3NxcmV2dHRnbXl2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0MDgwOTcsImV4cCI6MjA5NTk4NDA5N30.44clnfwRL_OnXJACgnrx7wYaDR4__0KlIMQ8dwir0bo" }
 
 [context.branch-deploy]
-  environment = { REACT_APP_ENV = "preview" }
+  environment = { REACT_APP_ENV = "preview", REACT_APP_SUPABASE_URL = "https://pbdzfisqosqrevttgmyv.supabase.co", REACT_APP_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBiZHpmaXNxb3NxcmV2dHRnbXl2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0MDgwOTcsImV4cCI6MjA5NTk4NDA5N30.44clnfwRL_OnXJACgnrx7wYaDR4__0KlIMQ8dwir0bo" }
 
 [[redirects]]
   from = "/*"

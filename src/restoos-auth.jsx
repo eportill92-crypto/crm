@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { supabase, hasSupabase } from './supabase';
 
 // ─────────────────────────────────────────────
 // DESIGN TOKENS
@@ -366,19 +367,41 @@ function LoginPage({ onLogin, isMobile }) {
     }
   }, []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     if (e && e.preventDefault) e.preventDefault();
     setLoading(true);
     setError(false);
-    setTimeout(() => {
-      const user = USERS.find(u => u.email === email && u.password === password);
-      setLoading(false);
-      if (user) {
-        onLogin(user);
-      } else {
+
+    if (hasSupabase) {
+      const { data, error: authErr } = await supabase.auth.signInWithPassword({ email, password });
+      if (authErr || !data.user) {
         setError(true);
+        setLoading(false);
+        return;
       }
-    }, 600);
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role, name, restaurant_id, restaurants(name, accent)')
+        .eq('id', data.user.id)
+        .single();
+      const user = {
+        id: data.user.id,
+        email: data.user.email,
+        role: profile?.role || 'staff',
+        name: profile?.name || data.user.email,
+        restaurant: profile?.restaurants?.name || null,
+        accent: profile?.restaurants?.accent || '#2B5F4A',
+      };
+      setLoading(false);
+      onLogin(user);
+    } else {
+      setTimeout(() => {
+        const user = USERS.find(u => u.email === email && u.password === password);
+        setLoading(false);
+        if (user) onLogin(user);
+        else setError(true);
+      }, 600);
+    }
   };
 
   const fillDemo = (demoEmail, demoPass) => {
@@ -1637,12 +1660,46 @@ function RestaurantPortal({ user, onLogout, onEnterPlatform, isMobile }) {
 // ─────────────────────────────────────────────
 // ROOT COMPONENT
 // ─────────────────────────────────────────────
+async function buildUserFromSession(session) {
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role, name, restaurant_id, restaurants(name, accent)')
+    .eq('id', session.user.id)
+    .single();
+  return {
+    id: session.user.id,
+    email: session.user.email,
+    role: profile?.role || 'staff',
+    name: profile?.name || session.user.email,
+    restaurant: profile?.restaurants?.name || null,
+    accent: profile?.restaurants?.accent || '#2B5F4A',
+  };
+}
+
 export default function ReStooSAuth({ onEnterPlatform }) {
   const [view, setView] = useState('login');
   const [currentUser, setCurrentUser] = useState(null);
   const [isMobile, setIsMobile] = useState(
     typeof window !== 'undefined' ? window.innerWidth < 768 : false
   );
+
+  useEffect(() => {
+    if (!hasSupabase) return;
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (session) {
+        const user = await buildUserFromSession(session);
+        handleLogin(user);
+      }
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_OUT') {
+        setCurrentUser(null);
+        setView('login');
+      }
+    });
+    return () => subscription.unsubscribe();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -1659,7 +1716,8 @@ export default function ReStooSAuth({ onEnterPlatform }) {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    if (hasSupabase) await supabase.auth.signOut();
     setCurrentUser(null);
     setView('login');
   };
