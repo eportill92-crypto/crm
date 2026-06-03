@@ -31,7 +31,7 @@ export default function App() {
 
   async function loadProfile(authUser) {
     const { data } = await supabase.from('factory_profiles').select('*').eq('id', authUser.id).single();
-    setUser(data ? { ...authUser, ...data } : { ...authUser, role: 'operator', name: authUser.email });
+    setUser(data ? { ...authUser, ...data } : { ...authUser, role: 'operador', name: authUser.email });
   }
 
   if (user === undefined) return <Loader />;
