@@ -342,14 +342,13 @@ function RichText({ text }) {
   );
 }
 
-function FeedModule({ me, toast }) {
+function FeedModule({ me, toast, onViewUser }) {
   const [posts, setPosts]         = useState(SEED_POSTS);
   const [draft, setDraft]         = useState('');
   const [draftImage, setDraftImage] = useState(null);
   const [expandedComments, setExpandedComments] = useState({});
   const [commentDrafts, setCommentDrafts]       = useState({});
   const [posting, setPosting]     = useState(false);
-  const [viewingUser, setViewingUser] = useState(null);
   const fileInputRef              = useRef(null);
   const textareaRef               = useRef(null);
 
@@ -431,7 +430,6 @@ function FeedModule({ me, toast }) {
 
   return (
     <div style={{ maxWidth:640, margin:'0 auto', padding:'24px 16px', display:'flex', flexDirection:'column', gap:20 }}>
-      {viewingUser && <UserProfileModal userId={viewingUser} me={me} onClose={()=>setViewingUser(null)} onMessage={(u)=>toast(`Abre Mensajes para chatear con ${u.name.split(' ')[0]}`)}/>}
       {/* Compose */}
       <div style={{ background:C.bgCard, borderRadius:16, padding:20, border:`1px solid ${C.border}`, animation:'fadeUp .3s ease' }}>
         <div style={{ display:'flex', gap:12, alignItems:'flex-start' }}>
@@ -499,11 +497,11 @@ function FeedModule({ me, toast }) {
             <div style={{ padding:20 }}>
               {/* Header */}
               <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:14 }}>
-                <button onClick={()=>setViewingUser(author.id)} style={{ background:'none', border:'none', padding:0, cursor:'pointer', flexShrink:0 }}>
+                <button onClick={()=>onViewUser(author.id)} style={{ background:'none', border:'none', padding:0, cursor:'pointer', flexShrink:0 }}>
                   <Avatar name={author.name} src={author.id===me.id?me.avatar:undefined} size={42} online={author.status}/>
                 </button>
                 <div style={{ minWidth:0 }}>
-                  <button onClick={()=>setViewingUser(author.id)} style={{ background:'none', border:'none', padding:0, cursor:'pointer', color:C.text, fontWeight:600, fontSize:15, fontFamily:F.body, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', maxWidth:'100%', display:'block' }}>{author.name}</button>
+                  <button onClick={()=>onViewUser(author.id)} style={{ background:'none', border:'none', padding:0, cursor:'pointer', color:C.text, fontWeight:600, fontSize:15, fontFamily:F.body, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', maxWidth:'100%', display:'block' }}>{author.name}</button>
                   <div style={{ fontSize:12, color:C.textSub }}>{author.role} · {timeAgo(post.at)}</div>
                 </div>
               </div>
@@ -770,64 +768,124 @@ function ChatModule({ me, toast, isMobile }) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// USER PROFILE MODAL
+// USER PROFILE PAGE (full page)
 // ═══════════════════════════════════════════════════════════════════════════════
-function UserProfileModal({ userId, me, onClose, onMessage }) {
+function UserProfilePage({ userId, me, onBack, toast, onGoChat }) {
   const u = SEED_USERS.find(u => u.id === userId);
   if (!u) return null;
   const statusLabel = { online:'En línea', away:'Ausente', offline:'Desconectado' };
   const statusColor = { online:C.online, away:C.warning, offline:C.offline };
+  const userPosts = SEED_POSTS.filter(p => p.authorId === userId);
+  const userById = (id) => SEED_USERS.find(x => x.id === id) || { name:'Usuario', id };
+
   return (
-    <>
-      <div onClick={onClose} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.6)', zIndex:300, animation:'fadeIn .15s ease' }}/>
-      <div style={{ position:'fixed', top:'50%', left:'50%', transform:'translate(-50%,-50%)', width:'min(420px, 92vw)', background:C.bgCard, borderRadius:20, overflow:'hidden', zIndex:301, animation:'fadeUp .2s ease', border:`1px solid ${C.border}` }}>
+    <div style={{ padding:'24px 16px', maxWidth:680, margin:'0 auto', animation:'fadeUp .3s ease' }}>
+      {/* Back */}
+      <button onClick={onBack} style={{ display:'flex', alignItems:'center', gap:6, background:'transparent', border:'none', color:C.textSub, fontSize:14, fontFamily:F.body, cursor:'pointer', marginBottom:16, padding:'4px 0' }}>
+        ← Volver
+      </button>
+
+      {/* Profile card */}
+      <div style={{ background:C.bgCard, borderRadius:20, overflow:'hidden', border:`1px solid ${C.border}`, marginBottom:20 }}>
         {/* Cover */}
-        <div style={{ height:90, background:`linear-gradient(135deg, ${C.accent} 0%, #8B5CF6 100%)`, position:'relative' }}>
-          <button onClick={onClose} style={{ position:'absolute', top:12, right:12, background:'rgba(0,0,0,0.3)', border:'none', borderRadius:'50%', width:30, height:30, display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', cursor:'pointer' }}>
-            <IcX s={14}/>
-          </button>
-          <div style={{ position:'absolute', bottom:-28, left:20 }}>
-            <Avatar name={u.name} src={u.avatar} size={60} online={u.status}/>
+        <div style={{ height:120, background:`linear-gradient(135deg, ${C.accent} 0%, #8B5CF6 100%)`, position:'relative' }}>
+          <div style={{ position:'absolute', bottom:-38, left:24 }}>
+            <Avatar name={u.name} src={u.avatar} size={80} online={u.status}/>
           </div>
         </div>
-        <div style={{ padding:'36px 20px 20px' }}>
-          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', gap:8, flexWrap:'wrap' }}>
-            <div style={{ minWidth:0 }}>
-              <div style={{ fontFamily:F.head, fontSize:18, fontWeight:800, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{u.name}</div>
-              <div style={{ fontSize:13, color:C.textSub, marginTop:2 }}>{u.role} · {u.dept}</div>
+        <div style={{ padding:'48px 24px 24px' }}>
+          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', gap:12, flexWrap:'wrap' }}>
+            <div>
+              <h2 style={{ fontFamily:F.head, fontSize:22, fontWeight:800 }}>{u.name}</h2>
+              <p style={{ fontSize:14, color:C.textSub, marginTop:3 }}>{u.role} · {u.dept}</p>
             </div>
-            <span style={{ fontSize:11, fontWeight:700, background:`${statusColor[u.status]}22`, color:statusColor[u.status], borderRadius:20, padding:'3px 10px', flexShrink:0 }}>
-              {statusLabel[u.status]}
-            </span>
+            <div style={{ display:'flex', flexDirection:'column', alignItems:'flex-end', gap:8 }}>
+              <span style={{ fontSize:12, fontWeight:700, background:`${statusColor[u.status]}22`, color:statusColor[u.status], borderRadius:20, padding:'4px 12px' }}>
+                {statusLabel[u.status]}
+              </span>
+              {u.id !== me.id && (
+                <button onClick={()=>{ toast(`Abre Mensajes para chatear con ${u.name.split(' ')[0]}`); onGoChat && onGoChat(); }} style={{ display:'flex', alignItems:'center', gap:6, background:C.accent, color:'#fff', border:'none', borderRadius:8, padding:'8px 16px', fontSize:13, fontWeight:600, fontFamily:F.body, cursor:'pointer' }}>
+                  <IcMsg s={14}/> Enviar mensaje
+                </button>
+              )}
+            </div>
           </div>
-          <div style={{ display:'flex', flexDirection:'column', gap:8, marginTop:16 }}>
-            <div style={{ display:'flex', alignItems:'center', gap:10, fontSize:13, color:C.textSub, overflow:'hidden' }}>
-              <IcMail s={14}/> <span style={{ overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{u.email}</span>
+
+          {/* Info */}
+          <div style={{ display:'flex', flexDirection:'column', gap:10, marginTop:18 }}>
+            <div style={{ display:'flex', alignItems:'center', gap:10, fontSize:14, color:C.textSub }}>
+              <IcMail s={15}/> <span>{u.email}</span>
             </div>
-            <div style={{ display:'flex', alignItems:'center', gap:10, fontSize:13, color:C.textSub }}>
-              <IcUsers s={14}/> {u.dept}
+            <div style={{ display:'flex', alignItems:'center', gap:10, fontSize:14, color:C.textSub }}>
+              <IcUsers s={15}/> <span>{u.dept}</span>
             </div>
           </div>
-          {u.id !== me.id && (
-            <div style={{ display:'flex', gap:10, marginTop:18 }}>
-              <button onClick={()=>{ onMessage(u); onClose(); }} style={{ flex:1, display:'flex', alignItems:'center', justifyContent:'center', gap:6, background:C.accent, color:'#fff', border:'none', borderRadius:8, padding:'10px', fontSize:14, fontWeight:600, fontFamily:F.body }}>
-                <IcMsg s={15}/> Enviar mensaje
-              </button>
-            </div>
-          )}
+
+          {/* Stats */}
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:12, marginTop:22 }}>
+            {[['Publicaciones', userPosts.length], ['Likes recibidos', userPosts.reduce((s,p)=>s+p.likes.length,0)], ['Comentarios', userPosts.reduce((s,p)=>s+p.comments.length,0)]].map(([label, val]) => (
+              <div key={label} style={{ background:C.bgInput, borderRadius:12, padding:'14px', textAlign:'center', border:`1px solid ${C.border}` }}>
+                <div style={{ fontSize:22, fontWeight:800, fontFamily:F.head, color:C.accent }}>{val}</div>
+                <div style={{ fontSize:12, color:C.textSub, marginTop:4 }}>{label}</div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
-    </>
+
+      {/* Posts */}
+      <h3 style={{ fontFamily:F.head, fontSize:16, fontWeight:700, marginBottom:14 }}>Publicaciones de {u.name.split(' ')[0]}</h3>
+      {userPosts.length === 0
+        ? <div style={{ background:C.bgCard, borderRadius:16, padding:32, border:`1px solid ${C.border}`, textAlign:'center', color:C.textSub }}>
+            Sin publicaciones aún
+          </div>
+        : <div style={{ display:'flex', flexDirection:'column', gap:16 }}>
+            {userPosts.map(post => (
+              <div key={post.id} style={{ background:C.bgCard, borderRadius:16, border:`1px solid ${C.border}`, padding:20 }}>
+                <div style={{ display:'flex', gap:10, alignItems:'center', marginBottom:12 }}>
+                  <Avatar name={u.name} src={u.avatar} size={38}/>
+                  <div>
+                    <div style={{ fontWeight:600, fontSize:14 }}>{u.name}</div>
+                    <div style={{ fontSize:12, color:C.textSub }}>{u.role} · {timeAgo(post.at)}</div>
+                  </div>
+                </div>
+                {post.text && <RichText text={post.text}/>}
+                {post.image && <img src={post.image} alt="post" style={{ width:'100%', maxHeight:300, objectFit:'cover', borderRadius:10, marginTop:10, display:'block' }}/>}
+                <div style={{ display:'flex', gap:16, marginTop:12, fontSize:13, color:C.textSub }}>
+                  {post.likes.length > 0 && <span>👍 {post.likes.length} Me gusta</span>}
+                  {post.comments.length > 0 && <span>💬 {post.comments.length} comentario{post.comments.length!==1?'s':''}</span>}
+                </div>
+                {post.comments.length > 0 && (
+                  <div style={{ marginTop:12, display:'flex', flexDirection:'column', gap:8 }}>
+                    {post.comments.map(c => {
+                      const ca = userById(c.authorId);
+                      return (
+                        <div key={c.id} style={{ display:'flex', gap:10 }}>
+                          <Avatar name={ca.name} size={28}/>
+                          <div style={{ background:C.bgInput, borderRadius:10, padding:'7px 12px', flex:1 }}>
+                            <span style={{ fontWeight:600, fontSize:13 }}>{ca.name} </span>
+                            <RichText text={c.text}/>
+                            <div style={{ fontSize:11, color:C.textSub, marginTop:2 }}>{timeAgo(c.at)}</div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+      }
+    </div>
   );
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // DIRECTORY MODULE
 // ═══════════════════════════════════════════════════════════════════════════════
-function DirectoryModule({ me, toast }) {
+function DirectoryModule({ me, toast, onViewUser }) {
   const [search, setSearch]       = useState('');
   const [filter, setFilter]       = useState('all');
-  const [viewingUser, setViewingUser] = useState(null);
 
   const depts = ['all', ...new Set(SEED_USERS.map(u=>u.dept))];
   const statusLabel = { online:'En línea', away:'Ausente', offline:'Desconectado' };
@@ -841,7 +899,6 @@ function DirectoryModule({ me, toast }) {
 
   return (
     <div style={{ padding:'24px 16px', maxWidth:900, margin:'0 auto' }}>
-      {viewingUser && <UserProfileModal userId={viewingUser} me={me} onClose={()=>setViewingUser(null)} onMessage={(u)=>toast(`Abre Mensajes para chatear con ${u.name.split(' ')[0]}`)}/>}
       <h2 style={{ fontFamily:F.head, fontSize:22, fontWeight:700, marginBottom:20 }}>Directorio del equipo</h2>
 
       {/* Filters */}
@@ -863,7 +920,7 @@ function DirectoryModule({ me, toast }) {
       <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(260px, 1fr))', gap:16 }}>
         {filtered.map((u, i) => (
           <div key={u.id} style={{ background:C.bgCard, borderRadius:16, padding:20, border:`1px solid ${C.border}`, animation:`fadeUp .3s ease ${i*0.04}s both`, transition:'border-color .15s', cursor:'pointer' }}
-            onClick={()=>setViewingUser(u.id)}>
+            onClick={()=>onViewUser(u.id)}>
             <div style={{ display:'flex', gap:14, alignItems:'center', marginBottom:16 }}>
               <Avatar name={u.name} size={52} online={u.status}/>
               <div style={{ minWidth:0 }}>
@@ -1433,6 +1490,7 @@ export default function ConnectSpace() {
 
   const [user, setUser]           = useState(null);
   const [section, setSection]     = useState('feed');
+  const [viewingUser, setViewingUser] = useState(null);
   const [showNotifs, setShowNotifs] = useState(false);
   const [mobileNav, setMobileNav] = useState(false);
   const [isMobile, setIsMobile]   = useState(window.innerWidth < 768);
@@ -1458,8 +1516,14 @@ export default function ConnectSpace() {
     { id:'profile',       label:'Mi Perfil',         icon:<Avatar name={user.name} size={22}/> },
   ];
 
+  const goToUser = (uid) => { setViewingUser(uid); };
+  const backFromUser = () => setViewingUser(null);
+
   const renderSection = () => {
-    const props = { me:user, toast, isMobile, onAvatarChange: updateAvatar };
+    if (viewingUser) {
+      return <UserProfilePage userId={viewingUser} me={user} toast={toast} onBack={backFromUser} onGoChat={()=>{ setViewingUser(null); setSection('chat'); }}/>;
+    }
+    const props = { me:user, toast, isMobile, onAvatarChange: updateAvatar, onViewUser: goToUser };
     switch(section) {
       case 'feed':          return <FeedModule {...props}/>;
       case 'chat':          return <ChatModule {...props}/>;
@@ -1498,7 +1562,7 @@ export default function ConnectSpace() {
             {NAV.map(item => {
               const active = section === item.id;
               return (
-                <button key={item.id} onClick={()=>setSection(item.id)} style={{
+                <button key={item.id} onClick={()=>{ setSection(item.id); setViewingUser(null); }} style={{
                   width:'100%', display:'flex', alignItems:'center', gap:12, padding:'10px 16px',
                   background: active ? C.accentLight : 'transparent',
                   border: `none`,
@@ -1581,7 +1645,7 @@ export default function ConnectSpace() {
               {NAV.map(item => {
                 const active = section === item.id;
                 return (
-                  <button key={item.id} onClick={()=>{ setSection(item.id); setMobileNav(false); }} style={{
+                  <button key={item.id} onClick={()=>{ setSection(item.id); setViewingUser(null); setMobileNav(false); }} style={{
                     width:'100%', display:'flex', alignItems:'center', gap:12, padding:'12px 20px',
                     background: active ? C.accentLight : 'transparent', border:'none', borderLeft:`3px solid ${active?C.accent:'transparent'}`,
                     color: active ? C.accent : C.textSub, fontFamily:F.body, fontSize:15, fontWeight: active?600:400, cursor:'pointer',
