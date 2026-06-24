@@ -18,8 +18,8 @@ function isMenuDomain() {
 function isWorkspaceDomain() {
   const host = window.location.hostname;
   const path = window.location.pathname;
-  return host.startsWith('workspace.') || host.startsWith('workspace-') ||
-         path === '/workspace' || path.startsWith('/workspace/');
+  return host.startsWith('connectspace.') || host.startsWith('connectspace-') ||
+         path === '/connectspace' || path.startsWith('/connectspace/');
 }
 
 function StagingBanner() {

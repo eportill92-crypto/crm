@@ -22,6 +22,7 @@ const IcLogout     = ({s=18}) => <Icon size={s} d={["M9 21H5a2 2 0 0 1-2-2V5a2 2
 const IcPlus       = ({s=18}) => <Icon size={s} d={["M12 5v14","M5 12h14"]}/>;
 const IcX          = ({s=16}) => <Icon size={s} d={["M18 6L6 18","M6 6l12 12"]}/>;
 const IcCheck      = ({s=16}) => <Icon size={s} d="M20 6L9 17l-5-5"/>;
+const IcCalendar   = ({s=20}) => <Icon size={s} d={["M8 2v4","M16 2v4","M3 10h18","M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"]}/>;
 const IcMail       = ({s=18}) => <Icon size={s} d={["M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z","M22 6l-10 7L2 6"]}/>;
 const IcStar       = ({s=18}) => <Icon size={s} fill="currentColor" stroke="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>;
 
@@ -123,7 +124,7 @@ const SEED_USERS = [
 const NOW = Date.now();
 const SEED_POSTS = [
   {
-    id:'p1', authorId:'u1', text:'¡Bienvenidos a Workspace! Aquí compartiremos novedades, logros y todo lo que nos une como equipo. 🚀 Cuéntenme: ¿cuál es su meta para este trimestre?',
+    id:'p1', authorId:'u1', text:'¡Bienvenidos a ConnectSpace! Aquí compartiremos novedades, logros y todo lo que nos une como equipo. 🚀 Cuéntenme: ¿cuál es su meta para este trimestre?',
     image: null, likes:['u2','u3','u4','u6'], comments:[
       { id:'c1', authorId:'u2', text:'¡Excelente iniciativa! Mi meta es lanzar el nuevo microservicio de pagos.', at: new Date(NOW - 3600*1000*2) },
       { id:'c2', authorId:'u3', text:'Rediseñar el onboarding completo antes de Q3 💪', at: new Date(NOW - 3600*1000*1) },
@@ -273,7 +274,7 @@ function AuthScreen({ onLogin }) {
               <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
             </svg>
           </div>
-          <h1 style={{ fontFamily:F.head, fontSize:28, fontWeight:800, color:C.text, letterSpacing:'-0.5px' }}>Workspace</h1>
+          <h1 style={{ fontFamily:F.head, fontSize:28, fontWeight:800, color:C.text, letterSpacing:'-0.5px' }}>ConnectSpace</h1>
           <p style={{ color:C.textSub, fontSize:14, marginTop:6 }}>Tu red social empresarial</p>
         </div>
 
@@ -970,9 +971,291 @@ function NotificationsPanel({ onClose }) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// KUDOS MODULE
+// ═══════════════════════════════════════════════════════════════════════════════
+const KUDOS_CATEGORIES = [
+  { id:'trabajo', label:'Gran trabajo', emoji:'🏆' },
+  { id:'ayuda',   label:'Siempre ayuda',emoji:'🤝' },
+  { id:'innova',  label:'Innovación',   emoji:'💡' },
+  { id:'lider',   label:'Liderazgo',    emoji:'🌟' },
+  { id:'cliente', label:'Enfoque cliente',emoji:'❤️' },
+  { id:'equipo',  label:'Trabajo en equipo',emoji:'🔥' },
+];
+
+function KudosModule({ me, toast }) {
+  const [kudos, setKudos] = useState([
+    { id:'k1', fromId:'u1', toId:'u4', category:'innova', message:'Miguel, tu solución para la migración sin downtime fue brillante. El equipo entero lo agradeció.', at: new Date(NOW - 86400*1000*2), likes:['u2','u3'] },
+    { id:'k2', fromId:'u2', toId:'u3', category:'trabajo', message:'Laura, los nuevos diseños elevaron completamente la experiencia. Los usuarios aman el nuevo onboarding.', at: new Date(NOW - 86400*1000*4), likes:['u1','u5','u6'] },
+    { id:'k3', fromId:'u7', toId:'u6', category:'cliente', message:'Diego, cerraste el deal más difícil del trimestre con una paciencia y profesionalismo increíbles. 🎉', at: new Date(NOW - 86400*1000*6), likes:['u1','u2'] },
+    { id:'k4', fromId:'u5', toId:'u8', category:'ayuda', message:'Andrés siempre tiene tiempo para ayudar a cualquiera del equipo, sin importar su carga de trabajo.', at: new Date(NOW - 86400*1000*9), likes:['u3','u7'] },
+  ]);
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({ toId:'', category:'trabajo', message:'' });
+
+  const userById = id => SEED_USERS.find(u => u.id === id) || { name:'Usuario' };
+  const otherUsers = SEED_USERS.filter(u => u.id !== me.id);
+
+  const submit = () => {
+    if (!form.toId || !form.message.trim()) { toast('Completa todos los campos','error'); return; }
+    setKudos(p => [{ id:`k${Date.now()}`, fromId:me.id, ...form, at:new Date(), likes:[] }, ...p]);
+    setForm({ toId:'', category:'trabajo', message:'' });
+    setShowForm(false);
+    toast(`Reconocimiento enviado a ${userById(form.toId).name.split(' ')[0]} 🎉`);
+  };
+
+  const toggleLike = id => setKudos(p => p.map(k => k.id !== id ? k : {
+    ...k, likes: k.likes.includes(me.id) ? k.likes.filter(x=>x!==me.id) : [...k.likes, me.id]
+  }));
+
+  return (
+    <div style={{ padding:'24px 16px', maxWidth:700, margin:'0 auto' }}>
+      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:20 }}>
+        <div>
+          <h2 style={{ fontFamily:F.head, fontSize:22, fontWeight:700 }}>Reconocimientos</h2>
+          <p style={{ fontSize:13, color:C.textSub, marginTop:2 }}>Celebra los logros de tu equipo públicamente</p>
+        </div>
+        <button onClick={()=>setShowForm(!showForm)} style={{ display:'flex', alignItems:'center', gap:6, background:C.accent, color:'#fff', border:'none', borderRadius:8, padding:'9px 16px', fontSize:14, fontWeight:600, fontFamily:F.body }}>
+          <IcPlus s={15}/> Dar kudos
+        </button>
+      </div>
+
+      {showForm && (
+        <div style={{ background:C.bgCard, borderRadius:16, padding:24, border:`1px solid ${C.border}`, marginBottom:20, animation:'fadeUp .25s ease' }}>
+          <h3 style={{ fontFamily:F.head, fontSize:16, fontWeight:700, marginBottom:16 }}>Dar reconocimiento</h3>
+          <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
+            <div>
+              <label style={{ display:'block', fontSize:12, color:C.textSub, marginBottom:4 }}>¿A quién?</label>
+              <select value={form.toId} onChange={e=>setForm(p=>({...p,toId:e.target.value}))} style={{ width:'100%', background:C.bgInput, border:`1px solid ${C.border}`, borderRadius:8, padding:'10px 12px', fontSize:14, color:C.text, fontFamily:F.body }}>
+                <option value="">Selecciona una persona...</option>
+                {otherUsers.map(u => <option key={u.id} value={u.id}>{u.name} — {u.role}</option>)}
+              </select>
+            </div>
+            <div>
+              <label style={{ display:'block', fontSize:12, color:C.textSub, marginBottom:8 }}>Categoría</label>
+              <div style={{ display:'flex', flexWrap:'wrap', gap:8 }}>
+                {KUDOS_CATEGORIES.map(cat => (
+                  <button key={cat.id} onClick={()=>setForm(p=>({...p,category:cat.id}))} style={{
+                    padding:'6px 12px', borderRadius:20, fontSize:13, fontFamily:F.body, fontWeight:500, cursor:'pointer',
+                    background: form.category===cat.id ? C.accent : C.bgInput,
+                    color: form.category===cat.id ? '#fff' : C.textSub,
+                    border:`1px solid ${form.category===cat.id ? C.accent : C.border}`,
+                  }}>{cat.emoji} {cat.label}</button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <label style={{ display:'block', fontSize:12, color:C.textSub, marginBottom:4 }}>Mensaje</label>
+              <textarea value={form.message} onChange={e=>setForm(p=>({...p,message:e.target.value}))} placeholder="¿Qué hizo esta persona que merece reconocimiento?" rows={3}
+                style={{ width:'100%', background:C.bgInput, border:`1px solid ${C.border}`, borderRadius:8, padding:'10px 14px', fontSize:14, color:C.text, fontFamily:F.body, resize:'none' }}/>
+            </div>
+            <div style={{ display:'flex', gap:10, justifyContent:'flex-end' }}>
+              <button onClick={()=>setShowForm(false)} style={{ background:'transparent', border:`1px solid ${C.border}`, color:C.textSub, borderRadius:8, padding:'9px 16px', fontSize:14, fontFamily:F.body }}>Cancelar</button>
+              <button onClick={submit} style={{ background:C.accent, color:'#fff', border:'none', borderRadius:8, padding:'9px 20px', fontSize:14, fontWeight:600, fontFamily:F.body }}>Publicar reconocimiento</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
+        {kudos.map((k, i) => {
+          const from = userById(k.fromId);
+          const to   = userById(k.toId);
+          const cat  = KUDOS_CATEGORIES.find(c=>c.id===k.category) || KUDOS_CATEGORIES[0];
+          const liked = k.likes.includes(me.id);
+          return (
+            <div key={k.id} style={{ background:C.bgCard, borderRadius:16, padding:24, border:`1px solid ${C.border}`, animation:`fadeUp .3s ease ${i*0.05}s both` }}>
+              <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:14 }}>
+                <div style={{ fontSize:32 }}>{cat.emoji}</div>
+                <div style={{ flex:1 }}>
+                  <div style={{ fontSize:14 }}>
+                    <strong>{from.name}</strong> <span style={{color:C.textSub}}>reconoció a</span> <strong style={{color:C.accent}}>{to.name}</strong>
+                  </div>
+                  <div style={{ fontSize:11, color:C.textSub, marginTop:2 }}>{cat.label} · {timeAgo(k.at)}</div>
+                </div>
+                <Avatar name={to.name} size={44}/>
+              </div>
+              <p style={{ fontSize:14, lineHeight:1.7, color:C.textSub, fontStyle:'italic', borderLeft:`3px solid ${C.accent}`, paddingLeft:12 }}>"{k.message}"</p>
+              <div style={{ display:'flex', alignItems:'center', gap:10, marginTop:14 }}>
+                <button onClick={()=>toggleLike(k.id)} style={{ display:'flex', alignItems:'center', gap:6, background: liked?C.accentLight:'transparent', border:`1px solid ${liked?C.accent:C.border}`, color: liked?C.accent:C.textSub, borderRadius:20, padding:'5px 12px', fontSize:13, fontFamily:F.body, fontWeight: liked?600:400 }}>
+                  👏 {k.likes.length > 0 ? k.likes.length : ''} Aplaudir
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// CALENDARIO MODULE
+// ═══════════════════════════════════════════════════════════════════════════════
+function CalendarModule({ me, toast }) {
+  const today = new Date();
+  const [viewDate, setViewDate] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
+  const [events, setEvents] = useState([
+    { id:'ev1', title:'Daily Standup', date:'2026-06-24', time:'09:00', endTime:'09:15', type:'reunion', attendees:['u2','u4','u8'], organizer:'u2', desc:'Sync diario del equipo de tecnología' },
+    { id:'ev2', title:'Team Building — Parque La Esperanza', date:'2026-06-25', time:'09:00', endTime:'14:00', type:'social', attendees:['u1','u2','u3','u4','u5','u6','u7','u8'], organizer:'u7', desc:'Actividad de integración del equipo completo' },
+    { id:'ev3', title:'Presentación Q2 a Inversores', date:'2026-06-27', time:'11:00', endTime:'12:30', type:'importante', attendees:['u1','u2','u5','u6'], organizer:'u1', desc:'Presentación de resultados y roadmap Q3' },
+    { id:'ev4', title:'1:1 CEO — Carlos', date:'2026-06-30', time:'16:00', endTime:'16:30', type:'reunion', attendees:['u1','u2'], organizer:'u1', desc:'Revisión mensual de OKRs tecnología' },
+    { id:'ev5', title:'Evaluaciones de desempeño', date:'2026-07-04', time:'10:00', endTime:'18:00', type:'rrhh', attendees:['u1','u7'], organizer:'u7', desc:'Sesiones de evaluación individual por departamento' },
+    { id:'ev6', title:'Lanzamiento v2.0', date:'2026-07-10', time:'09:00', endTime:'10:00', type:'importante', attendees:['u2','u3','u4','u8'], organizer:'u2', desc:'Go-live del rediseño de producto' },
+    { id:'ev7', title:'Retiro de liderazgo', date:'2026-07-15', time:'08:00', endTime:'18:00', type:'social', attendees:['u1','u2','u5','u6','u7'], organizer:'u1', desc:'Planeación estratégica semestral' },
+  ]);
+  const [showForm, setShowForm] = useState(false);
+  const [selectedDay, setSelectedDay] = useState(null);
+  const [form, setForm] = useState({ title:'', date:'', time:'09:00', endTime:'10:00', type:'reunion', desc:'' });
+
+  const typeColors = { reunion:C.accent, importante:C.danger, social:C.success, rrhh:C.warning };
+  const typeLabels = { reunion:'Reunión', importante:'Importante', social:'Social', rrhh:'RRHH' };
+
+  const year  = viewDate.getFullYear();
+  const month = viewDate.getMonth();
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const monthNames = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const dayNames = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+
+  const eventsForDate = (d) => {
+    const ds = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    return events.filter(e => e.date === ds);
+  };
+
+  const userById = id => SEED_USERS.find(u => u.id === id) || { name:'Usuario' };
+
+  const submit = () => {
+    if (!form.title.trim() || !form.date) { toast('Completa título y fecha','error'); return; }
+    setEvents(p => [...p, { id:`ev${Date.now()}`, ...form, attendees:[me.id], organizer:me.id }]);
+    setShowForm(false);
+    setForm({ title:'', date:'', time:'09:00', endTime:'10:00', type:'reunion', desc:'' });
+    toast('Evento creado');
+  };
+
+  const selectedEvents = selectedDay ? eventsForDate(selectedDay) : [];
+  const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+
+  return (
+    <div style={{ padding:'24px 16px', maxWidth:900, margin:'0 auto', display:'flex', gap:20, flexWrap:'wrap' }}>
+      {/* Calendar grid */}
+      <div style={{ flex:'1 1 500px' }}>
+        <div style={{ background:C.bgCard, borderRadius:16, padding:20, border:`1px solid ${C.border}` }}>
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:20 }}>
+            <button onClick={()=>setViewDate(new Date(year, month-1, 1))} style={{ background:C.bgInput, border:`1px solid ${C.border}`, color:C.text, borderRadius:8, width:32, height:32, display:'flex', alignItems:'center', justifyContent:'center', fontSize:16 }}>‹</button>
+            <h2 style={{ fontFamily:F.head, fontSize:18, fontWeight:700 }}>{monthNames[month]} {year}</h2>
+            <button onClick={()=>setViewDate(new Date(year, month+1, 1))} style={{ background:C.bgInput, border:`1px solid ${C.border}`, color:C.text, borderRadius:8, width:32, height:32, display:'flex', alignItems:'center', justifyContent:'center', fontSize:16 }}>›</button>
+          </div>
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(7,1fr)', gap:2, marginBottom:8 }}>
+            {dayNames.map(d => <div key={d} style={{ textAlign:'center', fontSize:11, fontWeight:700, color:C.textSub, padding:'4px 0' }}>{d}</div>)}
+          </div>
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(7,1fr)', gap:2 }}>
+            {Array.from({length: firstDay === 0 ? 6 : firstDay - 1}).map((_,i) => <div key={`e${i}`}/>)}
+            {Array.from({length: daysInMonth}).map((_,i) => {
+              const d = i + 1;
+              const ds = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+              const dayEvs = eventsForDate(d);
+              const isToday = ds === todayStr;
+              const isSelected = selectedDay === d;
+              return (
+                <button key={d} onClick={()=>setSelectedDay(isSelected ? null : d)} style={{
+                  background: isSelected ? C.accent : isToday ? C.accentLight : 'transparent',
+                  border:`1px solid ${isSelected ? C.accent : isToday ? C.accent : C.border}`,
+                  borderRadius:8, padding:'6px 4px', cursor:'pointer', display:'flex', flexDirection:'column', alignItems:'center', gap:2, minHeight:44,
+                }}>
+                  <span style={{ fontSize:13, fontWeight: isToday||isSelected ? 700 : 400, color: isSelected?'#fff':isToday?C.accent:C.text }}>{d}</span>
+                  <div style={{ display:'flex', gap:2, flexWrap:'wrap', justifyContent:'center' }}>
+                    {dayEvs.slice(0,3).map(ev => (
+                      <div key={ev.id} style={{ width:6, height:6, borderRadius:'50%', background: isSelected?'rgba(255,255,255,0.7)':typeColors[ev.type]||C.accent }}/>
+                    ))}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+          <button onClick={()=>{ setShowForm(!showForm); setForm(p=>({...p, date: selectedDay ? `${year}-${String(month+1).padStart(2,'0')}-${String(selectedDay).padStart(2,'0')}` : ''})); }} style={{ marginTop:16, width:'100%', background:C.accentLight, color:C.accent, border:`1px solid ${C.accent}44`, borderRadius:8, padding:'9px', fontSize:14, fontWeight:600, fontFamily:F.body }}>
+            + Nuevo evento
+          </button>
+        </div>
+
+        {showForm && (
+          <div style={{ background:C.bgCard, borderRadius:16, padding:20, border:`1px solid ${C.border}`, marginTop:16, animation:'fadeUp .2s ease' }}>
+            <h3 style={{ fontFamily:F.head, fontSize:15, fontWeight:700, marginBottom:14 }}>Nuevo evento</h3>
+            <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+              <input value={form.title} onChange={e=>setForm(p=>({...p,title:e.target.value}))} placeholder="Título del evento"
+                style={{ background:C.bgInput, border:`1px solid ${C.border}`, borderRadius:8, padding:'9px 12px', fontSize:14, color:C.text, fontFamily:F.body }}/>
+              <div style={{ display:'flex', gap:10 }}>
+                <input type="date" value={form.date} onChange={e=>setForm(p=>({...p,date:e.target.value}))}
+                  style={{ flex:1, background:C.bgInput, border:`1px solid ${C.border}`, borderRadius:8, padding:'9px 12px', fontSize:14, color:C.text, fontFamily:F.body }}/>
+                <input type="time" value={form.time} onChange={e=>setForm(p=>({...p,time:e.target.value}))}
+                  style={{ width:100, background:C.bgInput, border:`1px solid ${C.border}`, borderRadius:8, padding:'9px 12px', fontSize:14, color:C.text, fontFamily:F.body }}/>
+              </div>
+              <select value={form.type} onChange={e=>setForm(p=>({...p,type:e.target.value}))} style={{ background:C.bgInput, border:`1px solid ${C.border}`, borderRadius:8, padding:'9px 12px', fontSize:14, color:C.text, fontFamily:F.body }}>
+                {Object.entries(typeLabels).map(([k,v]) => <option key={k} value={k}>{v}</option>)}
+              </select>
+              <textarea value={form.desc} onChange={e=>setForm(p=>({...p,desc:e.target.value}))} placeholder="Descripción (opcional)" rows={2}
+                style={{ background:C.bgInput, border:`1px solid ${C.border}`, borderRadius:8, padding:'9px 12px', fontSize:14, color:C.text, fontFamily:F.body, resize:'none' }}/>
+              <div style={{ display:'flex', gap:10, justifyContent:'flex-end' }}>
+                <button onClick={()=>setShowForm(false)} style={{ background:'transparent', border:`1px solid ${C.border}`, color:C.textSub, borderRadius:8, padding:'8px 14px', fontSize:13, fontFamily:F.body }}>Cancelar</button>
+                <button onClick={submit} style={{ background:C.accent, color:'#fff', border:'none', borderRadius:8, padding:'8px 18px', fontSize:13, fontWeight:600, fontFamily:F.body }}>Crear</button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Event detail / upcoming */}
+      <div style={{ flex:'1 1 280px', display:'flex', flexDirection:'column', gap:16 }}>
+        {selectedDay && selectedEvents.length > 0 ? (
+          <div style={{ background:C.bgCard, borderRadius:16, padding:20, border:`1px solid ${C.border}` }}>
+            <h3 style={{ fontFamily:F.head, fontSize:15, fontWeight:700, marginBottom:14 }}>
+              {selectedDay} de {monthNames[month]}
+            </h3>
+            <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+              {selectedEvents.map(ev => (
+                <div key={ev.id} style={{ borderLeft:`3px solid ${typeColors[ev.type]||C.accent}`, paddingLeft:12 }}>
+                  <div style={{ fontWeight:600, fontSize:14 }}>{ev.title}</div>
+                  <div style={{ fontSize:12, color:C.textSub, marginTop:2 }}>{ev.time} – {ev.endTime} · {typeLabels[ev.type]}</div>
+                  {ev.desc && <p style={{ fontSize:12, color:C.textSub, marginTop:4, lineHeight:1.5 }}>{ev.desc}</p>}
+                  <div style={{ display:'flex', gap:4, marginTop:6, flexWrap:'wrap' }}>
+                    {ev.attendees.slice(0,5).map(uid => <Avatar key={uid} name={userById(uid).name} size={20}/>)}
+                    {ev.attendees.length > 5 && <span style={{ fontSize:11, color:C.textSub }}>+{ev.attendees.length-5}</span>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : selectedDay ? (
+          <div style={{ background:C.bgCard, borderRadius:16, padding:20, border:`1px solid ${C.border}`, textAlign:'center', color:C.textSub }}>
+            <p style={{ fontSize:14 }}>Sin eventos este día</p>
+          </div>
+        ) : null}
+
+        <div style={{ background:C.bgCard, borderRadius:16, padding:20, border:`1px solid ${C.border}` }}>
+          <h3 style={{ fontFamily:F.head, fontSize:15, fontWeight:700, marginBottom:14 }}>Próximos eventos</h3>
+          <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+            {events.filter(e => e.date >= todayStr).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,5).map(ev => (
+              <div key={ev.id} style={{ display:'flex', gap:12, alignItems:'flex-start' }}>
+                <div style={{ width:36, height:36, borderRadius:8, background:typeColors[ev.type]+'22', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                  <span style={{ fontSize:11, fontWeight:700, color:typeColors[ev.type] }}>{ev.date.split('-')[2]}</span>
+                  <span style={{ fontSize:9, color:typeColors[ev.type] }}>{monthNames[parseInt(ev.date.split('-')[1])-1].slice(0,3)}</span>
+                </div>
+                <div>
+                  <div style={{ fontSize:13, fontWeight:600 }}>{ev.title}</div>
+                  <div style={{ fontSize:11, color:C.textSub }}>{ev.time} · {ev.attendees.length} asistentes</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // MAIN WORKSPACE APP
 // ═══════════════════════════════════════════════════════════════════════════════
-export default function Workspace() {
+export default function ConnectSpace() {
   useEffect(() => { injectGlobal(); }, []);
 
   const [user, setUser]           = useState(null);
@@ -991,11 +1274,13 @@ export default function Workspace() {
   if (!user) return <AuthScreen onLogin={setUser} />;
 
   const NAV = [
-    { id:'feed',          label:'Inicio',      icon:<IcHome s={20}/> },
-    { id:'chat',          label:'Mensajes',    icon:<IcMsg s={20}/> },
-    { id:'directory',     label:'Directorio',  icon:<IcUsers s={20}/> },
-    { id:'announcements', label:'Anuncios',    icon:<IcPin s={20}/> },
-    { id:'profile',       label:'Mi Perfil',   icon:<Avatar name={user.name} size={22}/> },
+    { id:'feed',          label:'Inicio',          icon:<IcHome s={20}/> },
+    { id:'chat',          label:'Mensajes',         icon:<IcMsg s={20}/> },
+    { id:'directory',     label:'Directorio',       icon:<IcUsers s={20}/> },
+    { id:'kudos',         label:'Reconocimientos',  icon:<IcStar s={20}/> },
+    { id:'calendar',      label:'Calendario',       icon:<IcCalendar s={20}/> },
+    { id:'announcements', label:'Anuncios',          icon:<IcPin s={20}/> },
+    { id:'profile',       label:'Mi Perfil',         icon:<Avatar name={user.name} size={22}/> },
   ];
 
   const renderSection = () => {
@@ -1004,6 +1289,8 @@ export default function Workspace() {
       case 'feed':          return <FeedModule {...props}/>;
       case 'chat':          return <ChatModule {...props}/>;
       case 'directory':     return <DirectoryModule {...props}/>;
+      case 'kudos':         return <KudosModule {...props}/>;
+      case 'calendar':      return <CalendarModule {...props}/>;
       case 'announcements': return <AnnouncementsModule {...props}/>;
       case 'profile':       return <ProfileModule {...props}/>;
       default:              return <FeedModule {...props}/>;
@@ -1025,7 +1312,7 @@ export default function Workspace() {
                 <IcUsers s={16}/>
               </div>
               <div>
-                <div style={{ fontFamily:F.head, fontSize:16, fontWeight:800, letterSpacing:'-0.3px' }}>Workspace</div>
+                <div style={{ fontFamily:F.head, fontSize:16, fontWeight:800, letterSpacing:'-0.3px' }}>ConnectSpace</div>
                 <div style={{ fontSize:11, color:C.textSub }}>{user.name.split(' ')[0]}</div>
               </div>
             </div>
@@ -1075,7 +1362,7 @@ export default function Workspace() {
             <button onClick={()=>setMobileNav(!mobileNav)} style={{ background:'none', border:'none', color:C.text, padding:4 }}>☰</button>
           )}
           <div style={{ flex:1, display:'flex', alignItems:'center', gap:8, background:C.bgInput, borderRadius:8, padding:'6px 12px', maxWidth:400 }}>
-            <IcSearch s={15}/><input placeholder="Buscar en Workspace..." style={{ flex:1, background:'transparent', border:'none', fontSize:13, color:C.text, fontFamily:F.body }}/>
+            <IcSearch s={15}/><input placeholder="Buscar en ConnectSpace..." style={{ flex:1, background:'transparent', border:'none', fontSize:13, color:C.text, fontFamily:F.body }}/>
           </div>
           <div style={{ flex:1 }}/>
           <button onClick={()=>setShowNotifs(p=>!p)} style={{ position:'relative', background: showNotifs ? C.accentLight : 'transparent', border:'none', color: showNotifs ? C.accent : C.textSub, borderRadius:8, width:38, height:38, display:'flex', alignItems:'center', justifyContent:'center' }}>
@@ -1112,7 +1399,7 @@ export default function Workspace() {
           <div onClick={()=>setMobileNav(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.6)', zIndex:150 }}/>
           <div style={{ position:'fixed', top:0, left:0, bottom:0, width:260, background:C.bgSidebar, zIndex:151, display:'flex', flexDirection:'column', animation:'slideIn .2s ease', borderRight:`1px solid ${C.border}` }}>
             <div style={{ padding:'16px', borderBottom:`1px solid ${C.border}`, display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-              <span style={{ fontFamily:F.head, fontSize:16, fontWeight:800 }}>Workspace</span>
+              <span style={{ fontFamily:F.head, fontSize:16, fontWeight:800 }}>ConnectSpace</span>
               <button onClick={()=>setMobileNav(false)} style={{ background:'none', border:'none', color:C.textSub }}><IcX s={18}/></button>
             </div>
             <nav style={{ flex:1, padding:'8px 0' }}>
