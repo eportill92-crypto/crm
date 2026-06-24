@@ -349,6 +349,7 @@ function FeedModule({ me, toast }) {
   const [expandedComments, setExpandedComments] = useState({});
   const [commentDrafts, setCommentDrafts]       = useState({});
   const [posting, setPosting]     = useState(false);
+  const [viewingUser, setViewingUser] = useState(null);
   const fileInputRef              = useRef(null);
   const textareaRef               = useRef(null);
 
@@ -430,6 +431,7 @@ function FeedModule({ me, toast }) {
 
   return (
     <div style={{ maxWidth:640, margin:'0 auto', padding:'24px 16px', display:'flex', flexDirection:'column', gap:20 }}>
+      {viewingUser && <UserProfileModal userId={viewingUser} me={me} onClose={()=>setViewingUser(null)} onMessage={(u)=>toast(`Abre Mensajes para chatear con ${u.name.split(' ')[0]}`)}/>}
       {/* Compose */}
       <div style={{ background:C.bgCard, borderRadius:16, padding:20, border:`1px solid ${C.border}`, animation:'fadeUp .3s ease' }}>
         <div style={{ display:'flex', gap:12, alignItems:'flex-start' }}>
@@ -497,9 +499,11 @@ function FeedModule({ me, toast }) {
             <div style={{ padding:20 }}>
               {/* Header */}
               <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:14 }}>
-                <Avatar name={author.name} size={42} online={author.status}/>
-                <div>
-                  <div style={{ fontWeight:600, fontSize:15 }}>{author.name}</div>
+                <button onClick={()=>setViewingUser(author.id)} style={{ background:'none', border:'none', padding:0, cursor:'pointer', flexShrink:0 }}>
+                  <Avatar name={author.name} src={author.id===me.id?me.avatar:undefined} size={42} online={author.status}/>
+                </button>
+                <div style={{ minWidth:0 }}>
+                  <button onClick={()=>setViewingUser(author.id)} style={{ background:'none', border:'none', padding:0, cursor:'pointer', color:C.text, fontWeight:600, fontSize:15, fontFamily:F.body, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', maxWidth:'100%', display:'block' }}>{author.name}</button>
                   <div style={{ fontSize:12, color:C.textSub }}>{author.role} · {timeAgo(post.at)}</div>
                 </div>
               </div>
@@ -766,11 +770,64 @@ function ChatModule({ me, toast, isMobile }) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// USER PROFILE MODAL
+// ═══════════════════════════════════════════════════════════════════════════════
+function UserProfileModal({ userId, me, onClose, onMessage }) {
+  const u = SEED_USERS.find(u => u.id === userId);
+  if (!u) return null;
+  const statusLabel = { online:'En línea', away:'Ausente', offline:'Desconectado' };
+  const statusColor = { online:C.online, away:C.warning, offline:C.offline };
+  return (
+    <>
+      <div onClick={onClose} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.6)', zIndex:300, animation:'fadeIn .15s ease' }}/>
+      <div style={{ position:'fixed', top:'50%', left:'50%', transform:'translate(-50%,-50%)', width:'min(420px, 92vw)', background:C.bgCard, borderRadius:20, overflow:'hidden', zIndex:301, animation:'fadeUp .2s ease', border:`1px solid ${C.border}` }}>
+        {/* Cover */}
+        <div style={{ height:90, background:`linear-gradient(135deg, ${C.accent} 0%, #8B5CF6 100%)`, position:'relative' }}>
+          <button onClick={onClose} style={{ position:'absolute', top:12, right:12, background:'rgba(0,0,0,0.3)', border:'none', borderRadius:'50%', width:30, height:30, display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', cursor:'pointer' }}>
+            <IcX s={14}/>
+          </button>
+          <div style={{ position:'absolute', bottom:-28, left:20 }}>
+            <Avatar name={u.name} src={u.avatar} size={60} online={u.status}/>
+          </div>
+        </div>
+        <div style={{ padding:'36px 20px 20px' }}>
+          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', gap:8, flexWrap:'wrap' }}>
+            <div style={{ minWidth:0 }}>
+              <div style={{ fontFamily:F.head, fontSize:18, fontWeight:800, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{u.name}</div>
+              <div style={{ fontSize:13, color:C.textSub, marginTop:2 }}>{u.role} · {u.dept}</div>
+            </div>
+            <span style={{ fontSize:11, fontWeight:700, background:`${statusColor[u.status]}22`, color:statusColor[u.status], borderRadius:20, padding:'3px 10px', flexShrink:0 }}>
+              {statusLabel[u.status]}
+            </span>
+          </div>
+          <div style={{ display:'flex', flexDirection:'column', gap:8, marginTop:16 }}>
+            <div style={{ display:'flex', alignItems:'center', gap:10, fontSize:13, color:C.textSub, overflow:'hidden' }}>
+              <IcMail s={14}/> <span style={{ overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{u.email}</span>
+            </div>
+            <div style={{ display:'flex', alignItems:'center', gap:10, fontSize:13, color:C.textSub }}>
+              <IcUsers s={14}/> {u.dept}
+            </div>
+          </div>
+          {u.id !== me.id && (
+            <div style={{ display:'flex', gap:10, marginTop:18 }}>
+              <button onClick={()=>{ onMessage(u); onClose(); }} style={{ flex:1, display:'flex', alignItems:'center', justifyContent:'center', gap:6, background:C.accent, color:'#fff', border:'none', borderRadius:8, padding:'10px', fontSize:14, fontWeight:600, fontFamily:F.body }}>
+                <IcMsg s={15}/> Enviar mensaje
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // DIRECTORY MODULE
 // ═══════════════════════════════════════════════════════════════════════════════
 function DirectoryModule({ me, toast }) {
-  const [search, setSearch] = useState('');
-  const [filter, setFilter] = useState('all');
+  const [search, setSearch]       = useState('');
+  const [filter, setFilter]       = useState('all');
+  const [viewingUser, setViewingUser] = useState(null);
 
   const depts = ['all', ...new Set(SEED_USERS.map(u=>u.dept))];
   const statusLabel = { online:'En línea', away:'Ausente', offline:'Desconectado' };
@@ -784,6 +841,7 @@ function DirectoryModule({ me, toast }) {
 
   return (
     <div style={{ padding:'24px 16px', maxWidth:900, margin:'0 auto' }}>
+      {viewingUser && <UserProfileModal userId={viewingUser} me={me} onClose={()=>setViewingUser(null)} onMessage={(u)=>toast(`Abre Mensajes para chatear con ${u.name.split(' ')[0]}`)}/>}
       <h2 style={{ fontFamily:F.head, fontSize:22, fontWeight:700, marginBottom:20 }}>Directorio del equipo</h2>
 
       {/* Filters */}
@@ -804,23 +862,24 @@ function DirectoryModule({ me, toast }) {
       {/* Grid */}
       <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(260px, 1fr))', gap:16 }}>
         {filtered.map((u, i) => (
-          <div key={u.id} style={{ background:C.bgCard, borderRadius:16, padding:20, border:`1px solid ${C.border}`, animation:`fadeUp .3s ease ${i*0.04}s both`, transition:'border-color .15s' }}>
+          <div key={u.id} style={{ background:C.bgCard, borderRadius:16, padding:20, border:`1px solid ${C.border}`, animation:`fadeUp .3s ease ${i*0.04}s both`, transition:'border-color .15s', cursor:'pointer' }}
+            onClick={()=>setViewingUser(u.id)}>
             <div style={{ display:'flex', gap:14, alignItems:'center', marginBottom:16 }}>
               <Avatar name={u.name} size={52} online={u.status}/>
-              <div>
-                <div style={{ fontWeight:700, fontSize:15 }}>{u.name}</div>
-                <div style={{ fontSize:12, color:C.textSub, marginTop:2 }}>{u.role}</div>
+              <div style={{ minWidth:0 }}>
+                <div style={{ fontWeight:700, fontSize:15, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{u.name}</div>
+                <div style={{ fontSize:12, color:C.textSub, marginTop:2, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{u.role}</div>
                 <span style={{ display:'inline-block', marginTop:4, fontSize:11, fontWeight:600, background:`${statusColor[u.status]}22`, color:statusColor[u.status], borderRadius:20, padding:'2px 8px' }}>
                   {statusLabel[u.status]}
                 </span>
               </div>
             </div>
             <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
-              <div style={{ display:'flex', alignItems:'center', gap:8, fontSize:13, color:C.textSub }}>
-                <IcUsers s={13}/> {u.dept}
+              <div style={{ display:'flex', alignItems:'center', gap:8, fontSize:13, color:C.textSub, overflow:'hidden' }}>
+                <IcUsers s={13}/> <span style={{ overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{u.dept}</span>
               </div>
-              <div style={{ display:'flex', alignItems:'center', gap:8, fontSize:13, color:C.textSub }}>
-                <IcMail s={13}/> {u.email}
+              <div style={{ display:'flex', alignItems:'center', gap:8, fontSize:13, color:C.textSub, overflow:'hidden' }}>
+                <IcMail s={13}/> <span style={{ overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{u.email}</span>
               </div>
             </div>
             {u.id !== me.id && (
@@ -1422,14 +1481,14 @@ export default function ConnectSpace() {
       {!isMobile && (
         <div style={{ width:sidebarW, flexShrink:0, background:C.bgSidebar, borderRight:`1px solid ${C.border}`, display:'flex', flexDirection:'column' }}>
           {/* Logo */}
-          <div style={{ padding:'20px 20px 16px', borderBottom:`1px solid ${C.border}` }}>
-            <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-              <div style={{ width:32, height:32, background:C.accent, borderRadius:8, display:'flex', alignItems:'center', justifyContent:'center' }}>
-                <IcUsers s={16}/>
+          <div style={{ padding:'16px 14px', borderBottom:`1px solid ${C.border}` }}>
+            <div style={{ display:'flex', alignItems:'center', gap:10, overflow:'hidden' }}>
+              <div style={{ width:30, height:30, background:C.accent, borderRadius:8, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                <IcUsers s={15}/>
               </div>
-              <div>
-                <div style={{ fontFamily:F.head, fontSize:16, fontWeight:800, letterSpacing:'-0.3px' }}>ConnectSpace</div>
-                <div style={{ fontSize:11, color:C.textSub }}>{user.name.split(' ')[0]}</div>
+              <div style={{ minWidth:0 }}>
+                <div style={{ fontFamily:F.head, fontSize:14, fontWeight:800, letterSpacing:'-0.2px', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>ConnectSpace</div>
+                <div style={{ fontSize:10, color:C.textSub, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{user.name}</div>
               </div>
             </div>
           </div>
@@ -1455,12 +1514,12 @@ export default function ConnectSpace() {
           </nav>
 
           {/* User footer */}
-          <div style={{ padding:'14px 16px', borderTop:`1px solid ${C.border}` }}>
-            <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:10 }}>
-              <Avatar name={user.name} size={32} online={user.status}/>
-              <div>
-                <div style={{ fontSize:13, fontWeight:600 }}>{user.name.split(' ')[0]}</div>
-                <div style={{ fontSize:11, color:C.textSub }}>{user.role}</div>
+          <div style={{ padding:'12px 14px', borderTop:`1px solid ${C.border}` }}>
+            <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:10, overflow:'hidden' }}>
+              <Avatar name={user.name} src={user.avatar} size={32} online={user.status}/>
+              <div style={{ minWidth:0 }}>
+                <div style={{ fontSize:13, fontWeight:600, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{user.name}</div>
+                <div style={{ fontSize:11, color:C.textSub, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{user.role}</div>
               </div>
             </div>
             <button onClick={()=>setUser(null)} style={{ width:'100%', display:'flex', alignItems:'center', gap:6, background:'transparent', border:`1px solid ${C.border}`, borderRadius:7, padding:'7px 10px', fontSize:12, color:C.textSub, fontFamily:F.body, cursor:'pointer' }}>
