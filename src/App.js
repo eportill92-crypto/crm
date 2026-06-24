@@ -3,6 +3,7 @@ import React, { useState, Suspense, lazy } from 'react';
 const ReStooSAuth = lazy(() => import('./restoos-auth'));
 const RestaurantOS = lazy(() => import('./restaurant-os'));
 const MenuPublic   = lazy(() => import('./menu-public'));
+const WorkspaceApp = lazy(() => import('./workspace'));
 
 const ENV = process.env.REACT_APP_ENV || 'production';
 const IS_STAGING = ENV === 'staging' || ENV === 'preview';
@@ -12,6 +13,13 @@ function isMenuDomain() {
   const path = window.location.pathname;
   return host.startsWith('menu.') || host.startsWith('menu-') ||
          path === '/menu' || path.startsWith('/menu/');
+}
+
+function isWorkspaceDomain() {
+  const host = window.location.hostname;
+  const path = window.location.pathname;
+  return host.startsWith('workspace.') || host.startsWith('workspace-') ||
+         path === '/workspace' || path.startsWith('/workspace/');
 }
 
 function StagingBanner() {
@@ -67,6 +75,14 @@ export default function App() {
           <MenuPublic stagingOffset={IS_STAGING} />
         </Suspense>
       </>
+    );
+  }
+
+  if (isWorkspaceDomain()) {
+    return (
+      <Suspense fallback={<LoadingScreen />}>
+        <WorkspaceApp />
+      </Suspense>
     );
   }
 
