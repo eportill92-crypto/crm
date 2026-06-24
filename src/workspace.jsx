@@ -327,20 +327,81 @@ function AuthScreen({ onLogin }) {
 // ═══════════════════════════════════════════════════════════════════════════════
 // FEED MODULE
 // ═══════════════════════════════════════════════════════════════════════════════
+// Renders text with @mentions highlighted
+function RichText({ text }) {
+  if (!text) return null;
+  const parts = text.split(/(@\w[\w\s]*)/g);
+  return (
+    <p style={{ fontSize:15, lineHeight:1.65, color:'#F0F1F8', whiteSpace:'pre-wrap', margin:0 }}>
+      {parts.map((part, i) =>
+        part.startsWith('@')
+          ? <strong key={i} style={{ color:'#6366F1', fontWeight:600 }}>{part}</strong>
+          : part
+      )}
+    </p>
+  );
+}
+
 function FeedModule({ me, toast }) {
   const [posts, setPosts]         = useState(SEED_POSTS);
   const [draft, setDraft]         = useState('');
+  const [draftImage, setDraftImage] = useState(null);
   const [expandedComments, setExpandedComments] = useState({});
   const [commentDrafts, setCommentDrafts]       = useState({});
   const [posting, setPosting]     = useState(false);
+  const fileInputRef              = useRef(null);
+  const textareaRef               = useRef(null);
+
+  // @mention autocomplete
+  const [mentionQuery, setMentionQuery] = useState(null); // null = closed, string = filter
+  const [mentionStart, setMentionStart] = useState(0);
+
+  const handleDraftChange = (e) => {
+    const val = e.target.value;
+    setDraft(val);
+    const pos = e.target.selectionStart;
+    // find if cursor is right after an @ and some letters
+    const before = val.slice(0, pos);
+    const match = before.match(/@(\w*)$/);
+    if (match) {
+      setMentionQuery(match[1].toLowerCase());
+      setMentionStart(before.lastIndexOf('@'));
+    } else {
+      setMentionQuery(null);
+    }
+  };
+
+  const insertMention = (user) => {
+    const before = draft.slice(0, mentionStart);
+    const after  = draft.slice(textareaRef.current?.selectionStart || mentionStart);
+    const newVal = `${before}@${user.name} ${after}`;
+    setDraft(newVal);
+    setMentionQuery(null);
+    textareaRef.current?.focus();
+  };
+
+  const mentionSuggestions = mentionQuery !== null
+    ? SEED_USERS.filter(u => u.id !== me.id && u.name.toLowerCase().includes(mentionQuery)).slice(0, 5)
+    : [];
+
+  const pickImage = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 8 * 1024 * 1024) { toast('La imagen no debe superar 8 MB', 'error'); return; }
+    const reader = new FileReader();
+    reader.onload = (ev) => setDraftImage(ev.target.result);
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
 
   const submitPost = () => {
-    if (!draft.trim()) return;
+    if (!draft.trim() && !draftImage) return;
     setPosting(true);
     setTimeout(() => {
-      const p = { id:`p${Date.now()}`, authorId:me.id, text:draft.trim(), image:null, likes:[], comments:[], at:new Date(), pinned:false };
+      const p = { id:`p${Date.now()}`, authorId:me.id, text:draft.trim(), image:draftImage, likes:[], comments:[], at:new Date(), pinned:false };
       setPosts(prev => [p, ...prev]);
       setDraft('');
+      setDraftImage(null);
       setPosting(false);
       toast('Publicación creada');
     }, 400);
@@ -373,22 +434,46 @@ function FeedModule({ me, toast }) {
       <div style={{ background:C.bgCard, borderRadius:16, padding:20, border:`1px solid ${C.border}`, animation:'fadeUp .3s ease' }}>
         <div style={{ display:'flex', gap:12, alignItems:'flex-start' }}>
           <Avatar name={me.name} size={40}/>
-          <div style={{ flex:1 }}>
+          <div style={{ flex:1, position:'relative' }}>
             <textarea
-              value={draft} onChange={e=>setDraft(e.target.value)}
-              placeholder={`¿Qué quieres compartir, ${me.name.split(' ')[0]}?`}
+              ref={textareaRef}
+              value={draft} onChange={handleDraftChange}
+              placeholder={`¿Qué quieres compartir, ${me.name.split(' ')[0]}? Escribe @ para mencionar`}
               rows={3}
               style={{ width:'100%', background:C.bgInput, border:`1px solid ${C.border}`, borderRadius:10, padding:'10px 14px', fontSize:14, color:C.text, fontFamily:F.body, resize:'none' }}
             />
+            {mentionSuggestions.length > 0 && (
+              <div style={{ position:'absolute', top:'100%', left:0, right:0, background:C.bgCard, border:`1px solid ${C.border}`, borderRadius:10, overflow:'hidden', zIndex:50, boxShadow:'0 8px 24px rgba(0,0,0,0.4)' }}>
+                {mentionSuggestions.map(u => (
+                  <button key={u.id} onMouseDown={e=>{ e.preventDefault(); insertMention(u); }} style={{ width:'100%', display:'flex', alignItems:'center', gap:10, padding:'10px 14px', background:'none', border:'none', color:C.text, fontFamily:F.body, fontSize:14, textAlign:'left', cursor:'pointer' }}
+                    onMouseEnter={e=>e.currentTarget.style.background=C.bgHover} onMouseLeave={e=>e.currentTarget.style.background='none'}>
+                    <Avatar name={u.name} size={28}/>
+                    <div>
+                      <div style={{ fontWeight:600, fontSize:13 }}>{u.name}</div>
+                      <div style={{ fontSize:11, color:C.textSub }}>{u.role}</div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+            {draftImage && (
+              <div style={{ position:'relative', marginTop:10, borderRadius:10, overflow:'hidden' }}>
+                <img src={draftImage} alt="preview" style={{ width:'100%', maxHeight:300, objectFit:'cover', display:'block', borderRadius:10 }}/>
+                <button onClick={()=>setDraftImage(null)} style={{ position:'absolute', top:8, right:8, background:'rgba(0,0,0,0.6)', border:'none', borderRadius:'50%', width:28, height:28, display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', cursor:'pointer' }}>
+                  <IcX s={14}/>
+                </button>
+              </div>
+            )}
             <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginTop:10 }}>
               <div style={{ display:'flex', gap:8 }}>
-                <button style={{ display:'flex', alignItems:'center', gap:6, background:'transparent', border:'none', color:C.textSub, fontSize:13, fontFamily:F.body, padding:'6px 10px', borderRadius:6 }}>
+                <input ref={fileInputRef} type="file" accept="image/*" onChange={pickImage} style={{ display:'none' }}/>
+                <button onClick={()=>fileInputRef.current?.click()} style={{ display:'flex', alignItems:'center', gap:6, background: draftImage?C.accentLight:'transparent', border:'none', color: draftImage?C.accent:C.textSub, fontSize:13, fontFamily:F.body, padding:'6px 10px', borderRadius:6 }}>
                   <IcImg s={16}/> Foto
                 </button>
               </div>
-              <button onClick={submitPost} disabled={!draft.trim()||posting} style={{
+              <button onClick={submitPost} disabled={(!draft.trim()&&!draftImage)||posting} style={{
                 background:C.accent, color:'#fff', border:'none', borderRadius:8, padding:'8px 20px',
-                fontSize:14, fontWeight:600, fontFamily:F.body, opacity:(!draft.trim()||posting)?0.5:1,
+                fontSize:14, fontWeight:600, fontFamily:F.body, opacity:((!draft.trim()&&!draftImage)||posting)?0.5:1,
               }}>
                 {posting ? 'Publicando...' : 'Publicar'}
               </button>
@@ -419,7 +504,13 @@ function FeedModule({ me, toast }) {
                 </div>
               </div>
               {/* Text */}
-              <p style={{ fontSize:15, lineHeight:1.65, color:C.text, whiteSpace:'pre-wrap' }}>{post.text}</p>
+              {post.text && <RichText text={post.text}/>}
+              {/* Image */}
+              {post.image && (
+                <div style={{ marginTop: post.text ? 12 : 0, borderRadius:10, overflow:'hidden' }}>
+                  <img src={post.image} alt="post" style={{ width:'100%', maxHeight:400, objectFit:'cover', display:'block' }}/>
+                </div>
+              )}
               {/* Stats */}
               {(post.likes.length > 0 || post.comments.length > 0) && (
                 <div style={{ display:'flex', gap:16, marginTop:14, paddingBottom:12, borderBottom:`1px solid ${C.border}`, fontSize:13, color:C.textSub }}>
@@ -457,7 +548,7 @@ function FeedModule({ me, toast }) {
                         <Avatar name={ca.name} size={30}/>
                         <div style={{ background:C.bgInput, borderRadius:10, padding:'8px 12px', flex:1 }}>
                           <span style={{ fontWeight:600, fontSize:13 }}>{ca.name} </span>
-                          <span style={{ fontSize:13, color:C.textSub }}>{c.text}</span>
+                          <RichText text={c.text}/>
                           <div style={{ fontSize:11, color:C.textSub, marginTop:2 }}>{timeAgo(c.at)}</div>
                         </div>
                       </div>
@@ -856,19 +947,42 @@ function AnnouncementsModule({ me, toast }) {
 // ═══════════════════════════════════════════════════════════════════════════════
 // PROFILE MODULE
 // ═══════════════════════════════════════════════════════════════════════════════
-function ProfileModule({ me, toast }) {
-  const [editing, setEditing] = useState(false);
-  const [form, setForm]       = useState({ name:me.name, role:me.role, dept:me.dept, email:me.email });
+function ProfileModule({ me, toast, onAvatarChange }) {
+  const [editing, setEditing]   = useState(false);
+  const [form, setForm]         = useState({ name:me.name, role:me.role, dept:me.dept, email:me.email });
+  const avatarInputRef          = useRef(null);
 
   const save = () => { setEditing(false); toast('Perfil actualizado'); };
+
+  const pickAvatar = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { toast('La imagen no debe superar 5 MB', 'error'); return; }
+    const reader = new FileReader();
+    reader.onload = (ev) => { onAvatarChange(ev.target.result); toast('Foto de perfil actualizada ✓'); };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
 
   return (
     <div style={{ padding:'24px 16px', maxWidth:600, margin:'0 auto' }}>
       <div style={{ background:C.bgCard, borderRadius:20, overflow:'hidden', border:`1px solid ${C.border}` }}>
         {/* Cover */}
         <div style={{ height:120, background:`linear-gradient(135deg, ${C.accent} 0%, #8B5CF6 100%)`, position:'relative' }}>
-          <div style={{ position:'absolute', bottom:-32, left:24 }}>
-            <Avatar name={me.name} size={72}/>
+          <div style={{ position:'absolute', bottom:-36, left:24 }}>
+            <input ref={avatarInputRef} type="file" accept="image/*" onChange={pickAvatar} style={{ display:'none' }}/>
+            <div style={{ position:'relative', cursor:'pointer' }} onClick={()=>avatarInputRef.current?.click()}>
+              <Avatar name={me.name} src={me.avatar} size={76}/>
+              <div style={{ position:'absolute', inset:0, borderRadius:'50%', background:'rgba(0,0,0,0)', display:'flex', alignItems:'center', justifyContent:'center', transition:'background .2s' }}
+                onMouseEnter={e=>e.currentTarget.style.background='rgba(0,0,0,0.45)'}
+                onMouseLeave={e=>e.currentTarget.style.background='rgba(0,0,0,0)'}
+              >
+                <span style={{ color:'#fff', fontSize:11, fontWeight:700, pointerEvents:'none', opacity:0, transition:'opacity .2s' }}
+                  ref={el=>{ if(el) { el.closest('div').addEventListener('mouseenter',()=>el.style.opacity=1); el.closest('div').addEventListener('mouseleave',()=>el.style.opacity=0); } }}>
+                  📷 Cambiar
+                </span>
+              </div>
+            </div>
           </div>
         </div>
         <div style={{ padding:'44px 24px 24px' }}>
@@ -1265,6 +1379,8 @@ export default function ConnectSpace() {
   const [isMobile, setIsMobile]   = useState(window.innerWidth < 768);
   const { toasts, add: toast }    = useToasts();
 
+  const updateAvatar = (dataUrl) => setUser(p => ({ ...p, avatar: dataUrl }));
+
   useEffect(() => {
     const handle = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener('resize', handle);
@@ -1284,7 +1400,7 @@ export default function ConnectSpace() {
   ];
 
   const renderSection = () => {
-    const props = { me:user, toast, isMobile };
+    const props = { me:user, toast, isMobile, onAvatarChange: updateAvatar };
     switch(section) {
       case 'feed':          return <FeedModule {...props}/>;
       case 'chat':          return <ChatModule {...props}/>;
