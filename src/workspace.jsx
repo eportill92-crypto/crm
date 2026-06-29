@@ -37,19 +37,19 @@ const IcCake      = ({s=16}) => <Icon size={s} d={["M20 21v-8a2 2 0 0 0-2-2H6a2 
 const IcBuilding  = ({s=16}) => <Icon size={s} d={["M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z","M9 22V12h6v10"]}/>;
 const IcAward     = ({s=16}) => <Icon size={s} d={["M12 15a7 7 0 1 0 0-14 7 7 0 0 0 0 14z","M8.21 13.89L7 23l5-3 5 3-1.21-9.12"]}/>
 
-// ─── Design tokens ────────────────────────────────────────────────────────────
+// ─── Design tokens (Connect brand: naranja #F15B2B · azul marino #001D3D) ─────
 const C = {
-  bg:         '#0F1117',
-  bgCard:     '#1A1D26',
-  bgInput:    '#242735',
-  bgSidebar:  '#13151F',
-  bgHover:    '#1F2235',
-  accent:     '#6366F1',
-  accentHover:'#4F52D9',
-  accentLight:'rgba(99,102,241,0.12)',
-  text:       '#F0F1F8',
-  textSub:    '#8B8FA8',
-  border:     '#2A2D3E',
+  bg:         '#04111E',
+  bgCard:     '#0A1929',
+  bgInput:    '#0F2236',
+  bgSidebar:  '#001D3D',
+  bgHover:    '#0D2540',
+  accent:     '#F15B2B',
+  accentHover:'#D44E22',
+  accentLight:'rgba(241,91,43,0.14)',
+  text:       '#F0F4F8',
+  textSub:    '#8BA3B8',
+  border:     '#1A3550',
   success:    '#22C55E',
   danger:     '#EF4444',
   warning:    '#F59E0B',
@@ -57,12 +57,30 @@ const C = {
   away:       '#F59E0B',
   offline:    '#6B7280',
 };
-const F = { body: "'Inter', 'DM Sans', sans-serif", head: "'Syne', 'Inter', sans-serif" };
+const F = { body: "'Inter', sans-serif", head: "'Inter', sans-serif" };
 const R = '12px';
+
+// ─── Isotipo Connect (C girada 90° dentro de círculo) ────────────────────────
+const ConnectIsotipo = ({ size = 30 }) => (
+  <svg width={size} height={size} viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="50" cy="50" r="50" fill="#F15B2B"/>
+    <g transform="rotate(90, 50, 50)">
+      <text
+        x="50" y="68"
+        textAnchor="middle"
+        fontSize="72"
+        fontWeight="900"
+        fontFamily="'Inter', sans-serif"
+        fill="white"
+        letterSpacing="-4"
+      >C</text>
+    </g>
+  </svg>
+);
 
 // ─── Global styles ────────────────────────────────────────────────────────────
 const GLOBAL_CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: ${C.bg}; color: ${C.text}; font-family: ${F.body}; }
   ::-webkit-scrollbar { width: 4px; height: 4px; }
@@ -2380,14 +2398,15 @@ export default function ConnectSpace() {
       {!isMobile && (
         <div style={{ width:sidebarW, flexShrink:0, background:C.bgSidebar, borderRight:`1px solid ${C.border}`, display:'flex', flexDirection:'column' }}>
           {/* Logo */}
-          <div style={{ padding:'16px 14px', borderBottom:`1px solid ${C.border}` }}>
-            <div style={{ display:'flex', alignItems:'center', gap:10, overflow:'hidden' }}>
-              <div style={{ width:30, height:30, background:C.accent, borderRadius:8, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                <IcUsers s={15}/>
-              </div>
-              <div style={{ minWidth:0 }}>
-                <div style={{ fontFamily:F.head, fontSize:14, fontWeight:800, letterSpacing:'-0.2px', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>ConnectSpace</div>
-                <div style={{ fontSize:10, color:C.textSub, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{user.name}</div>
+          <div style={{ padding:'14px 14px', borderBottom:`1px solid ${C.border}` }}>
+            <div style={{ display:'flex', alignItems:'center', gap:8, overflow:'hidden' }}>
+              <ConnectIsotipo size={34}/>
+              <div style={{ minWidth:0, lineHeight:1 }}>
+                <div style={{ display:'flex', alignItems:'baseline', gap:0 }}>
+                  <span style={{ fontFamily:F.head, fontSize:16, fontWeight:900, color:'#F15B2B', letterSpacing:'-0.5px' }}>Connect</span>
+                  <span style={{ fontFamily:F.head, fontSize:16, fontWeight:400, color:C.text, letterSpacing:'-0.3px' }}>Space</span>
+                </div>
+                <div style={{ fontSize:10, color:C.textSub, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', marginTop:1 }}>{user.name}</div>
               </div>
             </div>
           </div>
