@@ -25,6 +25,17 @@ const IcCheck      = ({s=16}) => <Icon size={s} d="M20 6L9 17l-5-5"/>;
 const IcCalendar   = ({s=20}) => <Icon size={s} d={["M8 2v4","M16 2v4","M3 10h18","M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"]}/>;
 const IcMail       = ({s=18}) => <Icon size={s} d={["M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z","M22 6l-10 7L2 6"]}/>;
 const IcStar       = ({s=18}) => <Icon size={s} fill="currentColor" stroke="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>;
+const IcBook      = ({s=20}) => <Icon size={s} d={["M4 19.5A2.5 2.5 0 0 1 6.5 17H20","M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"]}/>;
+const IcUmbrella  = ({s=20}) => <Icon size={s} d={["M23 12a11.05 11.05 0 0 0-22 0zm-5 7a3 3 0 0 1-6 0v-7"]}/>;
+const IcTarget    = ({s=20}) => <Icon size={s} d={["M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20z","M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12z","M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"]}/>;
+const IcSitemap   = ({s=20}) => <Icon size={s} d={["M8 3H5a2 2 0 0 0-2 2v3","M21 8V5a2 2 0 0 0-2-2h-3","M3 21v-3a2 2 0 0 0 2-2h3","M21 16v3a2 2 0 0 0-2 2h-3","M12 3v4","M12 17v4","M3 12h18"]}/>;
+const IcClipboard = ({s=20}) => <Icon size={s} d={["M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2","M9 2h6a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z"]}/>;
+const IcBriefcase = ({s=20}) => <Icon size={s} d={["M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z","M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"]}/>;
+const IcPhone     = ({s=16}) => <Icon size={s} d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.44 2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 8a16 16 0 0 0 6.08 6.08l.95-.95a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>;
+const IcMapPin    = ({s=16}) => <Icon size={s} d={["M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z","M12 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"]}/>;
+const IcCake      = ({s=16}) => <Icon size={s} d={["M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8","M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1","M2 21h20","M7 8v2","M12 8v2","M17 8v2","M7 4l1 4","M12 4l1 4","M17 4l1 4"]}/>;
+const IcBuilding  = ({s=16}) => <Icon size={s} d={["M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z","M9 22V12h6v10"]}/>;
+const IcAward     = ({s=16}) => <Icon size={s} d={["M12 15a7 7 0 1 0 0-14 7 7 0 0 0 0 14z","M8.21 13.89L7 23l5-3 5 3-1.21-9.12"]}/>
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
 const C = {
@@ -111,14 +122,14 @@ function Avatar({ name, src, size=36, online }) {
 
 // ─── Seed data ────────────────────────────────────────────────────────────────
 const SEED_USERS = [
-  { id:'u1', name:'Ana Martínez',   role:'CEO',              dept:'Dirección',   email:'ana@empresa.com',    status:'online',  avatar:null },
-  { id:'u2', name:'Carlos Ruiz',    role:'CTO',              dept:'Tecnología',  email:'carlos@empresa.com', status:'online',  avatar:null },
-  { id:'u3', name:'Laura Sánchez',  role:'Diseño UX',        dept:'Producto',    email:'laura@empresa.com',  status:'away',    avatar:null },
-  { id:'u4', name:'Miguel Torres',  role:'Dev Backend',      dept:'Tecnología',  email:'miguel@empresa.com', status:'online',  avatar:null },
-  { id:'u5', name:'Sofía Herrera',  role:'Marketing Lead',   dept:'Marketing',   email:'sofia@empresa.com',  status:'offline', avatar:null },
-  { id:'u6', name:'Diego López',    role:'Ventas Senior',    dept:'Ventas',      email:'diego@empresa.com',  status:'online',  avatar:null },
-  { id:'u7', name:'Valentina Cruz', role:'Recursos Humanos', dept:'RRHH',        email:'vale@empresa.com',   status:'away',    avatar:null },
-  { id:'u8', name:'Andrés Mora',    role:'Dev Frontend',     dept:'Tecnología',  email:'andres@empresa.com', status:'offline', avatar:null },
+  { id:'u1', name:'Ana Martínez',   role:'CEO',              dept:'Dirección',  email:'ana@empresa.com',    status:'online',  avatar:null, phone:'+52 55 1234 5678', city:'Ciudad de México',  birthday:'15 de marzo',      hireDate:'2021-01-10', managerId:null, deptId:'D001', salary:'SD', compensation:18000, sti:0.15 },
+  { id:'u2', name:'Carlos Ruiz',    role:'CTO',              dept:'Tecnología', email:'carlos@empresa.com', status:'online',  avatar:null, phone:'+52 55 2345 6789', city:'Ciudad de México',  birthday:'8 de julio',       hireDate:'2021-03-15', managerId:'u1', deptId:'D002', salary:'SD', compensation:15000, sti:0.12 },
+  { id:'u3', name:'Laura Sánchez',  role:'Diseño UX',        dept:'Producto',   email:'laura@empresa.com',  status:'away',    avatar:null, phone:'+52 33 3456 7890', city:'Guadalajara',       birthday:'22 de noviembre',  hireDate:'2022-06-01', managerId:'u2', deptId:'D003', salary:'SD', compensation:9500,  sti:0.08 },
+  { id:'u4', name:'Miguel Torres',  role:'Dev Backend',      dept:'Tecnología', email:'miguel@empresa.com', status:'online',  avatar:null, phone:'+52 55 4567 8901', city:'Ciudad de México',  birthday:'5 de febrero',     hireDate:'2022-09-12', managerId:'u2', deptId:'D002', salary:'SD', compensation:10500, sti:0.08 },
+  { id:'u5', name:'Sofía Herrera',  role:'Marketing Lead',   dept:'Marketing',  email:'sofia@empresa.com',  status:'offline', avatar:null, phone:'+52 81 5678 9012', city:'Monterrey',         birthday:'30 de agosto',     hireDate:'2021-07-20', managerId:'u1', deptId:'D004', salary:'SD', compensation:12000, sti:0.10 },
+  { id:'u6', name:'Diego López',    role:'Ventas Senior',    dept:'Ventas',     email:'diego@empresa.com',  status:'online',  avatar:null, phone:'+52 55 6789 0123', city:'Ciudad de México',  birthday:'12 de abril',      hireDate:'2022-02-01', managerId:'u5', deptId:'D005', salary:'SD', compensation:9000,  sti:0.12 },
+  { id:'u7', name:'Valentina Cruz', role:'Recursos Humanos', dept:'RRHH',       email:'vale@empresa.com',   status:'away',    avatar:null, phone:'+52 55 7890 1234', city:'Ciudad de México',  birthday:'17 de septiembre', hireDate:'2021-05-10', managerId:'u1', deptId:'D006', salary:'SD', compensation:10000, sti:0.08 },
+  { id:'u8', name:'Andrés Mora',    role:'Dev Frontend',     dept:'Tecnología', email:'andres@empresa.com', status:'offline', avatar:null, phone:'+52 33 8901 2345', city:'Guadalajara',       birthday:'3 de enero',       hireDate:'2023-01-09', managerId:'u2', deptId:'D002', salary:'SD', compensation:8500,  sti:0.05 },
 ];
 
 const NOW = Date.now();
@@ -197,6 +208,71 @@ const SEED_DMS = {
 };
 
 function dmKey(a, b) { return [a,b].sort().join('-'); }
+
+const SEED_GROUPS = [
+  { id:'g1', name:'México 🇲🇽',   type:'país',  members:['u1','u2','u3','u4','u5','u6','u7','u8'], desc:'Equipo México completo',              color:'#EF4444' },
+  { id:'g2', name:'Tecnología',   type:'área',  members:['u2','u4','u8'],                           desc:'Área de tecnología e innovación',     color:'#6366F1' },
+  { id:'g3', name:'Marketing',    type:'área',  members:['u5','u6'],                                desc:'Marketing y ventas',                  color:'#F59E0B' },
+  { id:'g4', name:'RRHH',         type:'área',  members:['u1','u7'],                                desc:'Gestión del talento humano',          color:'#22C55E' },
+  { id:'g5', name:'Runners 🏃',   type:'grupo', members:['u2','u4','u6'],                           desc:'Aficionados al running y atletismo',  color:'#14B8A6' },
+  { id:'g6', name:'Book Club 📚', type:'grupo', members:['u1','u3','u7'],                           desc:'Club de lectura mensual',             color:'#8B5CF6' },
+];
+
+const SEED_ARTICLES = [
+  { id:'art1', title:'Manual de bienvenida',              category:'RRHH',       content:'Bienvenido a la empresa. Este manual contiene todo lo que necesitas saber para tu primer día: horarios, políticas de trabajo, beneficios y contactos clave del equipo. Te recomendamos leerlo con calma y anotar tus dudas para la reunión con tu jefe directo.',       authorId:'u7', at:new Date(NOW-86400*1000*30), pinned:true  },
+  { id:'art2', title:'Guía de herramientas tecnológicas', category:'Tecnología', content:'En esta guía encontrarás las herramientas que utilizamos: Slack para comunicación, Jira para proyectos, GitHub para código y Google Workspace para documentos colaborativos. Solicita accesos a IT en tu primer día.',                                                    authorId:'u2', at:new Date(NOW-86400*1000*20), pinned:false },
+  { id:'art3', title:'Política de trabajo híbrido',       category:'RRHH',       content:'Nuestra política de trabajo híbrido permite hasta 3 días de home office por semana. Los días de presencia obligatoria son martes y jueves. Consulta con tu gerente para coordinar tu calendario semanal.',                                                              authorId:'u7', at:new Date(NOW-86400*1000*15), pinned:false },
+  { id:'art4', title:'Proceso de code review',            category:'Tecnología', content:'Todo código debe pasar por al menos un reviewer antes de hacer merge. Usa PRs descriptivos con contexto y screenshots cuando aplique. Asegúrate de que los tests pasen en CI antes de solicitar revisión.',                                                            authorId:'u2', at:new Date(NOW-86400*1000*10), pinned:false },
+  { id:'art5', title:'Beneficios y prestaciones',         category:'RRHH',       content:'Los beneficios incluyen: seguro de gastos médicos mayores, vales de despensa, fondo de ahorro, días adicionales de vacaciones por antigüedad y un presupuesto anual de capacitación. Consulta a RRHH para más detalles.',                                             authorId:'u7', at:new Date(NOW-86400*1000*5),  pinned:false },
+];
+
+const SEED_VACATIONS = [
+  { id:'vac1', userId:'u3', type:'Vacaciones',       days:5, startDate:'2026-07-14', endDate:'2026-07-18', status:'approved', requestedAt:new Date(NOW-86400*1000*10), approvedBy:'u7', note:'' },
+  { id:'vac2', userId:'u6', type:'Permiso personal', days:1, startDate:'2026-07-02', endDate:'2026-07-02', status:'pending',  requestedAt:new Date(NOW-86400*1000*2),  approvedBy:null, note:'Cita médica' },
+  { id:'vac3', userId:'u4', type:'Vacaciones',       days:3, startDate:'2026-08-04', endDate:'2026-08-06', status:'pending',  requestedAt:new Date(NOW-86400*1000*1),  approvedBy:null, note:'' },
+  { id:'vac4', userId:'u8', type:'Incapacidad',      days:2, startDate:'2026-06-20', endDate:'2026-06-21', status:'approved', requestedAt:new Date(NOW-86400*1000*15), approvedBy:'u7', note:'Gripe' },
+];
+
+const SEED_PERFORMANCE = [
+  { userId:'u2', period:'Q1 2026', selfScore:4.2, managerScore:4.4, finalScore:4.3, strengths:'Liderazgo técnico, comunicación clara', areas:'Delegación, documentación',          status:'completed'  },
+  { userId:'u3', period:'Q1 2026', selfScore:4.5, managerScore:4.3, finalScore:4.4, strengths:'Creatividad, enfoque al usuario',      areas:'Gestión del tiempo',                  status:'completed'  },
+  { userId:'u4', period:'Q1 2026', selfScore:3.8, managerScore:4.0, finalScore:3.9, strengths:'Calidad de código, proactividad',      areas:'Comunicación con stakeholders',       status:'completed'  },
+  { userId:'u2', period:'Q2 2026', selfScore:4.3, managerScore:null,finalScore:null, strengths:'', areas:'', status:'in_progress' },
+  { userId:'u3', period:'Q2 2026', selfScore:null,managerScore:null,finalScore:null, strengths:'', areas:'', status:'pending'     },
+  { userId:'u4', period:'Q2 2026', selfScore:null,managerScore:null,finalScore:null, strengths:'', areas:'', status:'pending'     },
+];
+
+const SEED_OBJECTIVES = [
+  { id:'ob1', title:'Lanzar plataforma v2.0',              owner:'u2', type:'equipo',     progress:75, dueDate:'2026-07-10', keyResults:[
+    { id:'kr1', title:'Completar rediseño de UI',           progress:100 },
+    { id:'kr2', title:'Migrar base de datos sin downtime',  progress:100 },
+    { id:'kr3', title:'Pruebas de carga aprobadas',         progress:60  },
+    { id:'kr4', title:'Go-live sin incidentes P0',          progress:40  },
+  ]},
+  { id:'ob2', title:'Aumentar retención de clientes a 92%',owner:'u5', type:'equipo',     progress:60, dueDate:'2026-09-30', keyResults:[
+    { id:'kr5', title:'Implementar NPS mensual',            progress:100 },
+    { id:'kr6', title:'Reducir churn a < 5%',               progress:70  },
+    { id:'kr7', title:'Lanzar programa de lealtad',         progress:20  },
+  ]},
+  { id:'ob3', title:'Crecer pipeline de ventas 40%',        owner:'u6', type:'individual', progress:45, dueDate:'2026-09-30', keyResults:[
+    { id:'kr8', title:'Contactar 200 leads nuevos',         progress:80  },
+    { id:'kr9', title:'Cerrar 15 nuevos contratos',         progress:53  },
+  ]},
+  { id:'ob4', title:'Completar evaluaciones Q2',            owner:'u7', type:'individual', progress:30, dueDate:'2026-07-15', keyResults:[
+    { id:'kr10',title:'8 evaluaciones completadas',         progress:30  },
+  ]},
+];
+
+const ONBOARDING_TASKS = [
+  { id:'ot1', title:'Completa tu perfil con foto y datos',   desc:'Agrega foto, teléfono y ciudad',              done:true,  icon:'👤' },
+  { id:'ot2', title:'Preséntate en el canal #general',       desc:'Di hola a tus nuevos compañeros',             done:true,  icon:'👋' },
+  { id:'ot3', title:'Lee el Manual de Bienvenida',           desc:'Disponible en Biblioteca de conocimiento',    done:false, icon:'📖' },
+  { id:'ot4', title:'Únete a los grupos de tu área',         desc:'Encuentra tu equipo en Grupos',               done:false, icon:'👥' },
+  { id:'ot5', title:'Agenda tu 1:1 con tu jefe directo',     desc:'Coordina en el Calendario',                   done:false, icon:'📅' },
+  { id:'ot6', title:'Activa tus herramientas de trabajo',    desc:'Slack, Jira, GitHub, Google Workspace',       done:true,  icon:'🔧' },
+  { id:'ot7', title:'Conoce el Organigrama del equipo',      desc:'Explora quién es quién en la empresa',        done:false, icon:'🗺️' },
+  { id:'ot8', title:'Define tus objetivos del primer mes',   desc:'Coordina con tu jefe en Objetivos',           done:false, icon:'🎯' },
+];
 
 // ─── Toast ────────────────────────────────────────────────────────────────────
 function useToasts() {
@@ -1063,10 +1139,12 @@ function AnnouncementsModule({ me, toast }) {
 // ═══════════════════════════════════════════════════════════════════════════════
 // PROFILE MODULE
 // ═══════════════════════════════════════════════════════════════════════════════
-function ProfileModule({ me, toast, onAvatarChange }) {
+function ProfileModule({ me, toast, onAvatarChange, onViewUser }) {
   const [editing, setEditing]   = useState(false);
-  const [form, setForm]         = useState({ name:me.name, role:me.role, dept:me.dept, email:me.email });
+  const [tab, setTab]           = useState('info');
+  const [form, setForm]         = useState({ name:me.name, role:me.role, dept:me.dept, email:me.email, phone:me.phone||'', city:me.city||'' });
   const avatarInputRef          = useRef(null);
+  const isAdmin = me.id === 'u1' || me.id === 'u7';
 
   const save = () => { setEditing(false); toast('Perfil actualizado'); };
 
@@ -1080,73 +1158,187 @@ function ProfileModule({ me, toast, onAvatarChange }) {
     e.target.value = '';
   };
 
+  const manager = me.managerId ? SEED_USERS.find(u=>u.id===me.managerId) : null;
+  const myGroups = SEED_GROUPS.filter(g=>g.members.includes(me.id));
+  const myPosts = SEED_POSTS.filter(p=>p.author===me.id);
+
+  const yearsInOrg = me.hireDate ? Math.floor((NOW - new Date(me.hireDate).getTime())/(1000*60*60*24*365)) : null;
+
+  const TABS = [
+    { id:'info', label:'Información' },
+    { id:'wall', label:'Muro' },
+    { id:'groups', label:'Grupos' },
+  ];
+
   return (
-    <div style={{ padding:'24px 16px', maxWidth:600, margin:'0 auto' }}>
+    <div style={{ padding:'24px 16px', maxWidth:680, margin:'0 auto' }}>
       <div style={{ background:C.bgCard, borderRadius:20, overflow:'hidden', border:`1px solid ${C.border}` }}>
         {/* Cover */}
-        <div style={{ height:120, background:`linear-gradient(135deg, ${C.accent} 0%, #8B5CF6 100%)`, position:'relative' }}>
-          <div style={{ position:'absolute', bottom:-36, left:24 }}>
+        <div style={{ height:130, background:`linear-gradient(135deg, ${C.accent} 0%, #8B5CF6 100%)`, position:'relative' }}>
+          <div style={{ position:'absolute', bottom:-40, left:24 }}>
             <input ref={avatarInputRef} type="file" accept="image/*" onChange={pickAvatar} style={{ display:'none' }}/>
             <div style={{ position:'relative', cursor:'pointer' }} onClick={()=>avatarInputRef.current?.click()}>
-              <Avatar name={me.name} src={me.avatar} size={76}/>
+              <Avatar name={me.name} src={me.avatar} size={80}/>
               <div style={{ position:'absolute', inset:0, borderRadius:'50%', background:'rgba(0,0,0,0)', display:'flex', alignItems:'center', justifyContent:'center', transition:'background .2s' }}
-                onMouseEnter={e=>e.currentTarget.style.background='rgba(0,0,0,0.45)'}
+                onMouseEnter={e=>e.currentTarget.style.background='rgba(0,0,0,0.5)'}
                 onMouseLeave={e=>e.currentTarget.style.background='rgba(0,0,0,0)'}
               >
-                <span style={{ color:'#fff', fontSize:11, fontWeight:700, pointerEvents:'none', opacity:0, transition:'opacity .2s' }}
-                  ref={el=>{ if(el) { el.closest('div').addEventListener('mouseenter',()=>el.style.opacity=1); el.closest('div').addEventListener('mouseleave',()=>el.style.opacity=0); } }}>
+                <span style={{ color:'#fff', fontSize:10, fontWeight:700, pointerEvents:'none', opacity:0, transition:'opacity .2s', textAlign:'center' }}
+                  ref={el=>{ if(el){ const p=el.closest('div'); p.addEventListener('mouseenter',()=>el.style.opacity=1); p.addEventListener('mouseleave',()=>el.style.opacity=0); } }}>
                   📷 Cambiar
                 </span>
               </div>
             </div>
           </div>
         </div>
-        <div style={{ padding:'44px 24px 24px' }}>
-          {!editing ? (
-            <>
-              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start' }}>
-                <div>
-                  <h2 style={{ fontFamily:F.head, fontSize:22, fontWeight:800 }}>{me.name}</h2>
-                  <p style={{ fontSize:14, color:C.textSub, marginTop:2 }}>{me.role} · {me.dept}</p>
-                </div>
-                <button onClick={()=>setEditing(true)} style={{ background:C.accentLight, color:C.accent, border:`1px solid ${C.accent}44`, borderRadius:8, padding:'7px 14px', fontSize:13, fontWeight:600, fontFamily:F.body }}>
-                  Editar
-                </button>
-              </div>
-              <div style={{ marginTop:20, display:'flex', flexDirection:'column', gap:10 }}>
-                {[['Correo', me.email, <IcMail s={15}/>],[`Departamento`, me.dept, <IcUsers s={15}/>]].map(([label,val,icon]) => (
-                  <div key={label} style={{ display:'flex', gap:10, alignItems:'center', fontSize:14 }}>
-                    <span style={{ color:C.textSub }}>{icon}</span>
-                    <span style={{ color:C.textSub, minWidth:110 }}>{label}:</span>
-                    <span>{val}</span>
-                  </div>
-                ))}
-              </div>
 
-              {/* Stats */}
-              <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:12, marginTop:24 }}>
-                {[['Posts','4'],['Comentarios','7'],['Likes recibidos','12']].map(([label,val]) => (
-                  <div key={label} style={{ background:C.bgInput, borderRadius:12, padding:'14px', textAlign:'center', border:`1px solid ${C.border}` }}>
-                    <div style={{ fontSize:22, fontWeight:800, fontFamily:F.head, color:C.accent }}>{val}</div>
-                    <div style={{ fontSize:12, color:C.textSub, marginTop:4 }}>{label}</div>
-                  </div>
-                ))}
+        <div style={{ padding:'48px 24px 0' }}>
+          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', flexWrap:'wrap', gap:8 }}>
+            <div>
+              <h2 style={{ fontFamily:F.head, fontSize:22, fontWeight:800 }}>{me.name}</h2>
+              <p style={{ fontSize:14, color:C.textSub, marginTop:2 }}>{me.role} · {me.dept}</p>
+              {me.city && <p style={{ fontSize:13, color:C.textSub, marginTop:2, display:'flex', alignItems:'center', gap:4 }}><IcMapPin s={13}/>{me.city}</p>}
+            </div>
+            <button onClick={()=>setEditing(p=>!p)} style={{ background:C.accentLight, color:C.accent, border:`1px solid ${C.accent}44`, borderRadius:8, padding:'7px 14px', fontSize:13, fontWeight:600, fontFamily:F.body }}>
+              {editing ? 'Cancelar' : 'Editar perfil'}
+            </button>
+          </div>
+
+          {/* Stats */}
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:10, marginTop:20 }}>
+            {[['Posts', myPosts.length],['Grupos', myGroups.length],['Años en org.', yearsInOrg ?? '—']].map(([label,val]) => (
+              <div key={label} style={{ background:C.bgInput, borderRadius:10, padding:'12px', textAlign:'center', border:`1px solid ${C.border}` }}>
+                <div style={{ fontSize:20, fontWeight:800, fontFamily:F.head, color:C.accent }}>{val}</div>
+                <div style={{ fontSize:11, color:C.textSub, marginTop:3 }}>{label}</div>
               </div>
-            </>
-          ) : (
-            <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
-              <h2 style={{ fontFamily:F.head, fontSize:18, fontWeight:700 }}>Editar perfil</h2>
-              {[['Nombre completo','name','text'],['Cargo / Rol','role','text'],['Departamento','dept','text']].map(([label,key,type]) => (
+            ))}
+          </div>
+
+          {/* Tabs */}
+          <div style={{ display:'flex', gap:0, marginTop:20, borderBottom:`1px solid ${C.border}` }}>
+            {TABS.map(t=>(
+              <button key={t.id} onClick={()=>setTab(t.id)} style={{ padding:'10px 18px', background:'none', border:'none', borderBottom:`2px solid ${tab===t.id?C.accent:'transparent'}`, color:tab===t.id?C.accent:C.textSub, fontFamily:F.body, fontSize:13, fontWeight:600, cursor:'pointer' }}>
+                {t.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div style={{ padding:'20px 24px 28px' }}>
+          {editing && (
+            <div style={{ display:'flex', flexDirection:'column', gap:14, marginBottom:24, background:C.bgInput, borderRadius:14, padding:20, border:`1px solid ${C.border}` }}>
+              <h3 style={{ fontFamily:F.head, fontSize:16, fontWeight:700, marginBottom:4 }}>Editar información</h3>
+              {[['Nombre completo','name'],['Cargo / Rol','role'],['Departamento','dept'],['Teléfono','phone'],['Ciudad','city']].map(([label,key]) => (
                 <div key={key}>
                   <label style={{ display:'block', fontSize:12, color:C.textSub, marginBottom:4 }}>{label}</label>
-                  <input type={type} value={form[key]} onChange={e=>setForm(p=>({...p,[key]:e.target.value}))}
-                    style={{ width:'100%', background:C.bgInput, border:`1px solid ${C.border}`, borderRadius:8, padding:'10px 14px', fontSize:14, color:C.text, fontFamily:F.body }}/>
+                  <input value={form[key]} onChange={e=>setForm(p=>({...p,[key]:e.target.value}))}
+                    style={{ width:'100%', background:C.bg, border:`1px solid ${C.border}`, borderRadius:8, padding:'9px 12px', fontSize:14, color:C.text, fontFamily:F.body, boxSizing:'border-box' }}/>
                 </div>
               ))}
               <div style={{ display:'flex', gap:10, justifyContent:'flex-end', marginTop:4 }}>
-                <button onClick={()=>setEditing(false)} style={{ background:'transparent', border:`1px solid ${C.border}`, color:C.textSub, borderRadius:8, padding:'9px 16px', fontSize:14, fontFamily:F.body }}>Cancelar</button>
-                <button onClick={save} style={{ background:C.accent, color:'#fff', border:'none', borderRadius:8, padding:'9px 20px', fontSize:14, fontWeight:600, fontFamily:F.body }}>Guardar</button>
+                <button onClick={()=>setEditing(false)} style={{ background:'transparent', border:`1px solid ${C.border}`, color:C.textSub, borderRadius:8, padding:'8px 16px', fontSize:13, fontFamily:F.body, cursor:'pointer' }}>Cancelar</button>
+                <button onClick={save} style={{ background:C.accent, color:'#fff', border:'none', borderRadius:8, padding:'8px 20px', fontSize:13, fontWeight:600, fontFamily:F.body, cursor:'pointer' }}>Guardar</button>
               </div>
+            </div>
+          )}
+
+          {tab === 'info' && (
+            <div style={{ display:'flex', flexDirection:'column', gap:20 }}>
+              {/* Datos de contacto */}
+              <section>
+                <h3 style={{ fontSize:13, color:C.textSub, fontWeight:700, textTransform:'uppercase', letterSpacing:1, marginBottom:12 }}>Datos de contacto</h3>
+                <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+                  {[
+                    [<IcMail s={15}/>, 'Correo', me.email],
+                    me.phone && [<IcPhone s={15}/>, 'Teléfono', me.phone],
+                    me.city  && [<IcMapPin s={15}/>, 'Ciudad', me.city],
+                  ].filter(Boolean).map(([icon, label, val]) => (
+                    <div key={label} style={{ display:'flex', gap:12, alignItems:'center', fontSize:14 }}>
+                      <span style={{ color:C.accent }}>{icon}</span>
+                      <span style={{ color:C.textSub, minWidth:90 }}>{label}:</span>
+                      <span style={{ color:C.text }}>{val}</span>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              {/* Datos organizacionales */}
+              <section>
+                <h3 style={{ fontSize:13, color:C.textSub, fontWeight:700, textTransform:'uppercase', letterSpacing:1, marginBottom:12 }}>Datos organizacionales</h3>
+                <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+                  {[
+                    [<IcBuilding s={15}/>, 'Departamento', me.dept],
+                    me.deptId    && [<IcBuilding s={15}/>, 'ID Depto.', me.deptId],
+                    me.hireDate  && [<IcCake s={15}/>, 'Fecha de ingreso', new Date(me.hireDate).toLocaleDateString('es-MX',{year:'numeric',month:'long',day:'numeric'})],
+                    me.birthday  && [<IcCake s={15}/>, 'Cumpleaños', new Date(me.birthday).toLocaleDateString('es-MX',{month:'long',day:'numeric'})],
+                  ].filter(Boolean).map(([icon, label, val]) => (
+                    <div key={label} style={{ display:'flex', gap:12, alignItems:'center', fontSize:14 }}>
+                      <span style={{ color:C.accent }}>{icon}</span>
+                      <span style={{ color:C.textSub, minWidth:90 }}>{label}:</span>
+                      <span style={{ color:C.text }}>{val}</span>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              {/* Manager */}
+              {manager && (
+                <section>
+                  <h3 style={{ fontSize:13, color:C.textSub, fontWeight:700, textTransform:'uppercase', letterSpacing:1, marginBottom:12 }}>Reporta a</h3>
+                  <div style={{ display:'flex', alignItems:'center', gap:12, background:C.bgInput, borderRadius:12, padding:'12px 16px', border:`1px solid ${C.border}`, cursor:'pointer', maxWidth:280 }}
+                    onClick={()=>onViewUser&&onViewUser(manager.id)}>
+                    <Avatar name={manager.name} src={manager.avatar} size={40}/>
+                    <div>
+                      <div style={{ fontSize:14, fontWeight:600 }}>{manager.name}</div>
+                      <div style={{ fontSize:12, color:C.textSub }}>{manager.role}</div>
+                    </div>
+                  </div>
+                </section>
+              )}
+
+              {/* Admin-only: Compensación */}
+              {isAdmin && (
+                <section>
+                  <h3 style={{ fontSize:13, color:C.danger, fontWeight:700, textTransform:'uppercase', letterSpacing:1, marginBottom:12 }}>Compensación (Confidencial)</h3>
+                  <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:10 }}>
+                    {[['Salario base', me.salary ? `$${me.salary.toLocaleString('es-MX')}` : '—'],
+                      ['Compensación total', me.compensation ? `$${me.compensation.toLocaleString('es-MX')}` : '—'],
+                      ['STI', me.sti ? `$${me.sti.toLocaleString('es-MX')}` : '—']].map(([label,val])=>(
+                      <div key={label} style={{ background:C.bgInput, borderRadius:10, padding:'14px', border:`1px solid ${C.danger}33` }}>
+                        <div style={{ fontSize:11, color:C.textSub, marginBottom:4 }}>{label}</div>
+                        <div style={{ fontSize:16, fontWeight:700, color:C.text }}>{val}</div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+            </div>
+          )}
+
+          {tab === 'wall' && (
+            <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
+              {myPosts.length === 0 && <p style={{ color:C.textSub, fontSize:14 }}>Sin publicaciones aún.</p>}
+              {myPosts.map(post=>(
+                <div key={post.id} style={{ background:C.bgInput, borderRadius:12, padding:16, border:`1px solid ${C.border}` }}>
+                  <p style={{ fontSize:14, color:C.text, lineHeight:1.6 }}>{post.body}</p>
+                  <p style={{ fontSize:12, color:C.textSub, marginTop:8 }}>{new Date(post.at).toLocaleDateString('es-MX',{year:'numeric',month:'short',day:'numeric'})}</p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {tab === 'groups' && (
+            <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+              {myGroups.length === 0 && <p style={{ color:C.textSub, fontSize:14 }}>No perteneces a ningún grupo aún.</p>}
+              {myGroups.map(g=>(
+                <div key={g.id} style={{ display:'flex', alignItems:'center', gap:14, background:C.bgInput, borderRadius:12, padding:'12px 16px', border:`1px solid ${C.border}` }}>
+                  <span style={{ fontSize:28 }}>{g.emoji}</span>
+                  <div>
+                    <div style={{ fontSize:14, fontWeight:600 }}>{g.name}</div>
+                    <div style={{ fontSize:12, color:C.textSub }}>{g.members.length} miembros · {g.type}</div>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
         </div>
@@ -1483,6 +1675,635 @@ function CalendarModule({ me, toast }) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// GRUPOS MODULE
+// ═══════════════════════════════════════════════════════════════════════════════
+function GruposModule({ me, toast, onViewUser }) {
+  const [groups, setGroups] = useState(SEED_GROUPS);
+  const [activeGroup, setActiveGroup] = useState(null);
+  const [filter, setFilter] = useState('all');
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({ name:'', type:'área', desc:'' });
+  const isAdmin = me.id === 'u1' || me.id === 'u7';
+  const types = ['all','país','área','grupo'];
+  const typeColors = { país:'#EF4444', área:'#6366F1', grupo:'#22C55E' };
+  const isMember = (g) => g.members.includes(me.id);
+
+  const toggleMember = (gid, e) => {
+    if (e) e.stopPropagation();
+    setGroups(prev => prev.map(g => {
+      if (g.id !== gid) return g;
+      const m = isMember(g) ? g.members.filter(id=>id!==me.id) : [...g.members, me.id];
+      return { ...g, members: m };
+    }));
+    const g = groups.find(x=>x.id===gid);
+    toast(isMember(g) ? `Saliste de ${g.name}` : `Te uniste a ${g.name}`);
+  };
+
+  const createGroup = () => {
+    if (!form.name.trim()) { toast('Escribe un nombre','error'); return; }
+    setGroups(p => [...p, { id:`g${Date.now()}`, ...form, members:[me.id], color:typeColors[form.type]||C.accent }]);
+    setForm({ name:'', type:'área', desc:'' }); setShowForm(false); toast('Grupo creado');
+  };
+
+  if (activeGroup) {
+    const g = groups.find(x=>x.id===activeGroup);
+    if (!g) { setActiveGroup(null); return null; }
+    const members = SEED_USERS.filter(u => g.members.includes(u.id));
+    return (
+      <div style={{ padding:'24px 16px', maxWidth:760, margin:'0 auto' }}>
+        <button onClick={()=>setActiveGroup(null)} style={{ display:'flex', alignItems:'center', gap:6, background:'transparent', border:'none', color:C.textSub, fontSize:14, fontFamily:F.body, cursor:'pointer', marginBottom:16 }}>← Volver a grupos</button>
+        <div style={{ background:C.bgCard, borderRadius:16, overflow:'hidden', border:`1px solid ${C.border}`, marginBottom:20 }}>
+          <div style={{ height:80, background:`linear-gradient(135deg, ${g.color}88 0%, ${g.color}33 100%)`, display:'flex', alignItems:'center', padding:'0 24px', gap:16 }}>
+            <div style={{ flex:1 }}>
+              <h2 style={{ fontFamily:F.head, fontSize:20, fontWeight:800 }}>{g.name}</h2>
+              <div style={{ fontSize:13, color:C.textSub }}>{g.members.length} miembros · {g.type}</div>
+            </div>
+            <button onClick={(e)=>toggleMember(g.id,e)} style={{ background:isMember(g)?`${C.danger}22`:`${C.accent}22`, color:isMember(g)?C.danger:C.accent, border:`1px solid ${isMember(g)?C.danger:C.accent}`, borderRadius:8, padding:'8px 16px', fontSize:13, fontWeight:600, fontFamily:F.body, cursor:'pointer' }}>
+              {isMember(g) ? 'Salir' : 'Unirme'}
+            </button>
+          </div>
+          <div style={{ padding:20 }}>
+            <p style={{ fontSize:14, color:C.textSub, marginBottom:16 }}>{g.desc}</p>
+            <div style={{ fontSize:12, fontWeight:700, color:C.textSub, marginBottom:10, textTransform:'uppercase', letterSpacing:'0.5px' }}>Miembros ({members.length})</div>
+            <div style={{ display:'flex', flexWrap:'wrap', gap:10 }}>
+              {members.map(u => (
+                <button key={u.id} onClick={()=>onViewUser(u.id)} style={{ display:'flex', alignItems:'center', gap:8, background:C.bgInput, border:`1px solid ${C.border}`, borderRadius:10, padding:'8px 12px', cursor:'pointer', fontFamily:F.body, transition:'border-color .15s' }}
+                  onMouseEnter={e=>e.currentTarget.style.borderColor=C.accent} onMouseLeave={e=>e.currentTarget.style.borderColor=C.border}>
+                  <Avatar name={u.name} src={u.avatar} size={28} online={u.status}/>
+                  <div style={{ textAlign:'left' }}>
+                    <div style={{ fontSize:13, fontWeight:600, color:C.text }}>{u.name}</div>
+                    <div style={{ fontSize:11, color:C.textSub }}>{u.role}</div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const filtered = groups.filter(g => filter==='all' || g.type===filter);
+  return (
+    <div style={{ padding:'24px 16px', maxWidth:900, margin:'0 auto' }}>
+      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:20, flexWrap:'wrap', gap:12 }}>
+        <h2 style={{ fontFamily:F.head, fontSize:22, fontWeight:700 }}>Grupos</h2>
+        {isAdmin && <button onClick={()=>setShowForm(!showForm)} style={{ display:'flex', alignItems:'center', gap:6, background:C.accent, color:'#fff', border:'none', borderRadius:8, padding:'9px 16px', fontSize:14, fontWeight:600, fontFamily:F.body, cursor:'pointer' }}><IcPlus s={15}/> Nuevo grupo</button>}
+      </div>
+      {showForm && (
+        <div style={{ background:C.bgCard, borderRadius:16, padding:20, border:`1px solid ${C.border}`, marginBottom:20, animation:'fadeUp .2s ease' }}>
+          <h3 style={{ fontFamily:F.head, fontSize:15, fontWeight:700, marginBottom:14 }}>Crear grupo</h3>
+          <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+            <input value={form.name} onChange={e=>setForm(p=>({...p,name:e.target.value}))} placeholder="Nombre del grupo" style={{ background:C.bgInput, border:`1px solid ${C.border}`, borderRadius:8, padding:'9px 12px', fontSize:14, color:C.text, fontFamily:F.body }}/>
+            <select value={form.type} onChange={e=>setForm(p=>({...p,type:e.target.value}))} style={{ background:C.bgInput, border:`1px solid ${C.border}`, borderRadius:8, padding:'9px 12px', fontSize:14, color:C.text, fontFamily:F.body }}>
+              <option value="país">País</option><option value="área">Área</option><option value="grupo">Grupo</option>
+            </select>
+            <input value={form.desc} onChange={e=>setForm(p=>({...p,desc:e.target.value}))} placeholder="Descripción" style={{ background:C.bgInput, border:`1px solid ${C.border}`, borderRadius:8, padding:'9px 12px', fontSize:14, color:C.text, fontFamily:F.body }}/>
+            <div style={{ display:'flex', gap:10, justifyContent:'flex-end' }}>
+              <button onClick={()=>setShowForm(false)} style={{ background:'transparent', border:`1px solid ${C.border}`, color:C.textSub, borderRadius:8, padding:'8px 14px', fontSize:13, fontFamily:F.body }}>Cancelar</button>
+              <button onClick={createGroup} style={{ background:C.accent, color:'#fff', border:'none', borderRadius:8, padding:'8px 18px', fontSize:13, fontWeight:600, fontFamily:F.body }}>Crear</button>
+            </div>
+          </div>
+        </div>
+      )}
+      <div style={{ display:'flex', gap:8, marginBottom:20, flexWrap:'wrap' }}>
+        {types.map(t => <button key={t} onClick={()=>setFilter(t)} style={{ background:filter===t?C.accent:C.bgCard, color:filter===t?'#fff':C.textSub, border:`1px solid ${filter===t?C.accent:C.border}`, borderRadius:8, padding:'7px 14px', fontSize:13, fontFamily:F.body, cursor:'pointer' }}>{t==='all'?'Todos':t.charAt(0).toUpperCase()+t.slice(1)}</button>)}
+      </div>
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(280px, 1fr))', gap:16 }}>
+        {filtered.map((g, i) => (
+          <div key={g.id} onClick={()=>setActiveGroup(g.id)} style={{ background:C.bgCard, borderRadius:16, border:`1px solid ${C.border}`, overflow:'hidden', animation:`fadeUp .3s ease ${i*0.04}s both`, cursor:'pointer', transition:'border-color .15s' }}
+            onMouseEnter={e=>e.currentTarget.style.borderColor=C.accent} onMouseLeave={e=>e.currentTarget.style.borderColor=C.border}>
+            <div style={{ height:52, background:`linear-gradient(135deg, ${g.color}88, ${g.color}33)`, position:'relative' }}>
+              <span style={{ position:'absolute', top:10, left:14, fontSize:11, fontWeight:700, background:`${g.color}44`, color:g.color, borderRadius:20, padding:'2px 10px', textTransform:'uppercase', letterSpacing:'0.5px' }}>{g.type}</span>
+            </div>
+            <div style={{ padding:16 }}>
+              <div style={{ fontFamily:F.head, fontSize:16, fontWeight:700, marginBottom:4 }}>{g.name}</div>
+              <div style={{ fontSize:13, color:C.textSub, marginBottom:12, lineHeight:1.4 }}>{g.desc}</div>
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                <div style={{ display:'flex' }}>
+                  {SEED_USERS.filter(u=>g.members.includes(u.id)).slice(0,4).map((u,idx) => (
+                    <div key={u.id} style={{ marginLeft:idx===0?0:-8 }}><Avatar name={u.name} size={24}/></div>
+                  ))}
+                  {g.members.length>4 && <div style={{ width:24,height:24,borderRadius:'50%',background:C.bgInput,display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,color:C.textSub,marginLeft:-8 }}>+{g.members.length-4}</div>}
+                </div>
+                <button onClick={(e)=>toggleMember(g.id,e)} style={{ background:isMember(g)?'transparent':C.accentLight, color:isMember(g)?C.textSub:C.accent, border:`1px solid ${isMember(g)?C.border:C.accent}`, borderRadius:6, padding:'5px 10px', fontSize:12, fontWeight:600, fontFamily:F.body, cursor:'pointer' }}>
+                  {isMember(g)?'Miembro ✓':'Unirme'}
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// BIBLIOTECA MODULE
+// ═══════════════════════════════════════════════════════════════════════════════
+function ArticleCard({ art, userById, catColors, onClick, delay=0 }) {
+  const author = userById(art.authorId);
+  return (
+    <div onClick={onClick} style={{ background:C.bgCard, borderRadius:14, padding:'16px 20px', border:`1px solid ${C.border}`, cursor:'pointer', animation:`fadeUp .3s ease ${delay*0.04}s both`, display:'flex', alignItems:'center', gap:16, transition:'border-color .15s' }}
+      onMouseEnter={e=>e.currentTarget.style.borderColor=C.accent} onMouseLeave={e=>e.currentTarget.style.borderColor=C.border}>
+      <div style={{ width:44, height:44, borderRadius:12, background:`${catColors[art.category]||C.accent}22`, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, fontSize:22 }}>
+        {art.category==='RRHH'?'📋':art.category==='Tecnología'?'💻':'📄'}
+      </div>
+      <div style={{ flex:1, minWidth:0 }}>
+        <div style={{ fontWeight:700, fontSize:15, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{art.title}</div>
+        <div style={{ fontSize:13, color:C.textSub, marginTop:2, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{art.content.slice(0,80)}...</div>
+        <div style={{ fontSize:11, color:C.textSub, marginTop:4 }}>{author.name} · {timeAgo(art.at)}</div>
+      </div>
+      <span style={{ fontSize:11, fontWeight:600, background:`${catColors[art.category]||C.accent}22`, color:catColors[art.category]||C.accent, borderRadius:20, padding:'3px 10px', flexShrink:0 }}>{art.category}</span>
+    </div>
+  );
+}
+
+function BibliotecaModule({ me, toast }) {
+  const [articles, setArticles] = useState(SEED_ARTICLES);
+  const [search, setSearch] = useState('');
+  const [category, setCategory] = useState('all');
+  const [viewing, setViewing] = useState(null);
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({ title:'', category:'RRHH', content:'' });
+  const isAdmin = me.id==='u1'||me.id==='u7'||me.id==='u2';
+  const categories = ['all',...new Set(articles.map(a=>a.category))];
+  const catColors = { RRHH:C.success, Tecnología:C.accent, General:C.warning, Marketing:'#EC4899', Operaciones:'#14B8A6' };
+  const userById = id => SEED_USERS.find(u=>u.id===id)||{ name:'Usuario' };
+
+  const filtered = articles.filter(a => {
+    const ms = !search || a.title.toLowerCase().includes(search.toLowerCase()) || a.content.toLowerCase().includes(search.toLowerCase());
+    const mc = category==='all'||a.category===category;
+    return ms && mc;
+  });
+
+  const submit = () => {
+    if (!form.title.trim()||!form.content.trim()) { toast('Completa todos los campos','error'); return; }
+    setArticles(p=>[...p,{ id:`art${Date.now()}`, ...form, authorId:me.id, at:new Date(), pinned:false }]);
+    setForm({ title:'', category:'RRHH', content:'' }); setShowForm(false); toast('Artículo publicado');
+  };
+
+  if (viewing) {
+    const art = articles.find(a=>a.id===viewing);
+    if (!art) { setViewing(null); return null; }
+    const author = userById(art.authorId);
+    return (
+      <div style={{ padding:'24px 16px', maxWidth:720, margin:'0 auto' }}>
+        <button onClick={()=>setViewing(null)} style={{ display:'flex', alignItems:'center', gap:6, background:'transparent', border:'none', color:C.textSub, fontSize:14, fontFamily:F.body, cursor:'pointer', marginBottom:20 }}>← Volver a la biblioteca</button>
+        <div style={{ background:C.bgCard, borderRadius:16, padding:32, border:`1px solid ${C.border}` }}>
+          <div style={{ display:'flex', gap:8, marginBottom:16 }}>
+            {art.pinned && <span style={{ fontSize:11, fontWeight:700, background:C.accentLight, color:C.accent, borderRadius:20, padding:'3px 10px' }}>📌 Destacado</span>}
+            <span style={{ fontSize:11, fontWeight:600, background:`${catColors[art.category]||C.accent}22`, color:catColors[art.category]||C.accent, borderRadius:20, padding:'3px 10px' }}>{art.category}</span>
+          </div>
+          <h1 style={{ fontFamily:F.head, fontSize:24, fontWeight:800, marginBottom:12, lineHeight:1.3 }}>{art.title}</h1>
+          <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:24, paddingBottom:20, borderBottom:`1px solid ${C.border}` }}>
+            <Avatar name={author.name} size={30}/>
+            <span style={{ fontSize:13, color:C.textSub }}>{author.name} · {timeAgo(art.at)}</span>
+          </div>
+          <p style={{ fontSize:15, lineHeight:1.9, color:C.textSub }}>{art.content}</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ padding:'24px 16px', maxWidth:900, margin:'0 auto' }}>
+      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:20, flexWrap:'wrap', gap:12 }}>
+        <div>
+          <h2 style={{ fontFamily:F.head, fontSize:22, fontWeight:700 }}>Biblioteca de conocimiento</h2>
+          <p style={{ fontSize:13, color:C.textSub, marginTop:2 }}>Guías, políticas y recursos del equipo</p>
+        </div>
+        {isAdmin && <button onClick={()=>setShowForm(!showForm)} style={{ display:'flex', alignItems:'center', gap:6, background:C.accent, color:'#fff', border:'none', borderRadius:8, padding:'9px 16px', fontSize:14, fontWeight:600, fontFamily:F.body, cursor:'pointer' }}><IcPlus s={15}/> Nuevo artículo</button>}
+      </div>
+      {showForm && (
+        <div style={{ background:C.bgCard, borderRadius:16, padding:24, border:`1px solid ${C.border}`, marginBottom:20, animation:'fadeUp .2s ease' }}>
+          <h3 style={{ fontFamily:F.head, fontSize:15, fontWeight:700, marginBottom:14 }}>Nuevo artículo</h3>
+          <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+            <input value={form.title} onChange={e=>setForm(p=>({...p,title:e.target.value}))} placeholder="Título" style={{ background:C.bgInput, border:`1px solid ${C.border}`, borderRadius:8, padding:'9px 12px', fontSize:14, color:C.text, fontFamily:F.body }}/>
+            <select value={form.category} onChange={e=>setForm(p=>({...p,category:e.target.value}))} style={{ background:C.bgInput, border:`1px solid ${C.border}`, borderRadius:8, padding:'9px 12px', fontSize:14, color:C.text, fontFamily:F.body }}>
+              {['RRHH','Tecnología','General','Marketing','Operaciones'].map(c=><option key={c} value={c}>{c}</option>)}
+            </select>
+            <textarea value={form.content} onChange={e=>setForm(p=>({...p,content:e.target.value}))} placeholder="Contenido del artículo..." rows={5} style={{ background:C.bgInput, border:`1px solid ${C.border}`, borderRadius:8, padding:'9px 12px', fontSize:14, color:C.text, fontFamily:F.body, resize:'none' }}/>
+            <div style={{ display:'flex', gap:10, justifyContent:'flex-end' }}>
+              <button onClick={()=>setShowForm(false)} style={{ background:'transparent', border:`1px solid ${C.border}`, color:C.textSub, borderRadius:8, padding:'8px 14px', fontSize:13, fontFamily:F.body }}>Cancelar</button>
+              <button onClick={submit} style={{ background:C.accent, color:'#fff', border:'none', borderRadius:8, padding:'8px 18px', fontSize:13, fontWeight:600, fontFamily:F.body }}>Publicar</button>
+            </div>
+          </div>
+        </div>
+      )}
+      <div style={{ display:'flex', gap:12, marginBottom:20, flexWrap:'wrap' }}>
+        <div style={{ display:'flex', alignItems:'center', gap:8, background:C.bgCard, borderRadius:10, padding:'8px 14px', border:`1px solid ${C.border}`, flex:1, minWidth:200 }}>
+          <IcSearch s={15}/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Buscar en la biblioteca..." style={{ flex:1, background:'transparent', border:'none', fontSize:14, color:C.text, fontFamily:F.body }}/>
+        </div>
+        <div style={{ display:'flex', gap:6, flexWrap:'wrap' }}>
+          {categories.map(c=><button key={c} onClick={()=>setCategory(c)} style={{ background:category===c?C.accent:C.bgCard, color:category===c?'#fff':C.textSub, border:`1px solid ${category===c?C.accent:C.border}`, borderRadius:8, padding:'8px 12px', fontSize:13, fontFamily:F.body, cursor:'pointer' }}>{c==='all'?'Todo':c}</button>)}
+        </div>
+      </div>
+      {filtered.filter(a=>a.pinned).length>0 && (
+        <div style={{ marginBottom:16 }}>
+          <div style={{ fontSize:11, fontWeight:700, color:C.textSub, textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:10 }}>📌 Destacados</div>
+          {filtered.filter(a=>a.pinned).map(art=><ArticleCard key={art.id} art={art} userById={userById} catColors={catColors} onClick={()=>setViewing(art.id)}/>)}
+        </div>
+      )}
+      <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+        {filtered.filter(a=>!a.pinned).map((art,i)=><ArticleCard key={art.id} art={art} userById={userById} catColors={catColors} onClick={()=>setViewing(art.id)} delay={i}/>)}
+      </div>
+      {filtered.length===0 && <div style={{ textAlign:'center', color:C.textSub, padding:40 }}>No se encontraron artículos</div>}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// VACACIONES MODULE
+// ═══════════════════════════════════════════════════════════════════════════════
+function VacacionesModule({ me, toast }) {
+  const [requests, setRequests] = useState(SEED_VACATIONS);
+  const [showForm, setShowForm] = useState(false);
+  const [activeTab, setActiveTab] = useState('mis');
+  const [form, setForm] = useState({ type:'Vacaciones', startDate:'', endDate:'', note:'' });
+  const isAdmin = me.id==='u1'||me.id==='u7';
+  const userById = id => SEED_USERS.find(u=>u.id===id)||{ name:'Usuario' };
+  const myRequests = requests.filter(r=>r.userId===me.id);
+  const statusColors = { approved:C.success, pending:C.warning, rejected:C.danger };
+  const statusLabels = { approved:'Aprobado', pending:'Pendiente', rejected:'Rechazado' };
+  const daysBetween = (s,e) => { if(!s||!e) return 0; return Math.max(1,Math.ceil((new Date(e)-new Date(s))/(1000*60*60*24))+1); };
+
+  const submit = () => {
+    if (!form.startDate||!form.endDate) { toast('Selecciona las fechas','error'); return; }
+    setRequests(p=>[...p,{ id:`vac${Date.now()}`, userId:me.id, ...form, days:daysBetween(form.startDate,form.endDate), status:'pending', requestedAt:new Date(), approvedBy:null }]);
+    setForm({ type:'Vacaciones', startDate:'', endDate:'', note:'' }); setShowForm(false); toast('Solicitud enviada');
+  };
+
+  const approve = id => { setRequests(p=>p.map(r=>r.id===id?{...r,status:'approved',approvedBy:me.id}:r)); toast('Solicitud aprobada'); };
+  const reject  = id => { setRequests(p=>p.map(r=>r.id===id?{...r,status:'rejected'}:r)); toast('Solicitud rechazada','warning'); };
+
+  const usedVac = myRequests.filter(r=>r.type==='Vacaciones'&&r.status==='approved').reduce((s,r)=>s+r.days,0);
+  const balance = { vacaciones:15-usedVac, personales:3 };
+  const list = activeTab==='mis' ? myRequests : requests;
+
+  return (
+    <div style={{ padding:'24px 16px', maxWidth:820, margin:'0 auto' }}>
+      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:20, flexWrap:'wrap', gap:12 }}>
+        <h2 style={{ fontFamily:F.head, fontSize:22, fontWeight:700 }}>Vacaciones y permisos</h2>
+        <button onClick={()=>setShowForm(!showForm)} style={{ display:'flex', alignItems:'center', gap:6, background:C.accent, color:'#fff', border:'none', borderRadius:8, padding:'9px 16px', fontSize:14, fontWeight:600, fontFamily:F.body, cursor:'pointer' }}><IcPlus s={15}/> Nueva solicitud</button>
+      </div>
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(180px,1fr))', gap:12, marginBottom:20 }}>
+        {[['🏖️','Días de vacaciones',balance.vacaciones,15],['🏠','Permisos personales',balance.personales,3]].map(([emoji,label,avail,total])=>(
+          <div key={label} style={{ background:C.bgCard, borderRadius:14, padding:18, border:`1px solid ${C.border}` }}>
+            <div style={{ fontSize:24, marginBottom:6 }}>{emoji}</div>
+            <div style={{ fontSize:12, color:C.textSub, marginBottom:4 }}>{label}</div>
+            <div style={{ fontFamily:F.head, fontSize:22, fontWeight:800, color:C.accent }}>{avail}</div>
+            <div style={{ fontSize:11, color:C.textSub }}>de {total} disponibles</div>
+            <div style={{ marginTop:8, height:4, background:C.bgInput, borderRadius:2 }}>
+              <div style={{ height:4, background:C.accent, borderRadius:2, width:`${(avail/total)*100}%` }}/>
+            </div>
+          </div>
+        ))}
+      </div>
+      {showForm && (
+        <div style={{ background:C.bgCard, borderRadius:16, padding:24, border:`1px solid ${C.border}`, marginBottom:20, animation:'fadeUp .2s ease' }}>
+          <h3 style={{ fontFamily:F.head, fontSize:15, fontWeight:700, marginBottom:14 }}>Nueva solicitud</h3>
+          <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+            <select value={form.type} onChange={e=>setForm(p=>({...p,type:e.target.value}))} style={{ background:C.bgInput, border:`1px solid ${C.border}`, borderRadius:8, padding:'9px 12px', fontSize:14, color:C.text, fontFamily:F.body }}>
+              {['Vacaciones','Permiso personal','Incapacidad','Home office'].map(t=><option key={t} value={t}>{t}</option>)}
+            </select>
+            <div style={{ display:'flex', gap:12 }}>
+              {[['startDate','Fecha inicio'],['endDate','Fecha fin']].map(([k,l])=>(
+                <div key={k} style={{ flex:1 }}>
+                  <label style={{ display:'block', fontSize:12, color:C.textSub, marginBottom:4 }}>{l}</label>
+                  <input type="date" value={form[k]} onChange={e=>setForm(p=>({...p,[k]:e.target.value}))} style={{ width:'100%', background:C.bgInput, border:`1px solid ${C.border}`, borderRadius:8, padding:'9px 12px', fontSize:14, color:C.text, fontFamily:F.body }}/>
+                </div>
+              ))}
+            </div>
+            {form.startDate&&form.endDate&&<div style={{ fontSize:13, color:C.accent, fontWeight:600 }}>Total: {daysBetween(form.startDate,form.endDate)} día(s)</div>}
+            <input value={form.note} onChange={e=>setForm(p=>({...p,note:e.target.value}))} placeholder="Nota (opcional)" style={{ background:C.bgInput, border:`1px solid ${C.border}`, borderRadius:8, padding:'9px 12px', fontSize:14, color:C.text, fontFamily:F.body }}/>
+            <div style={{ display:'flex', gap:10, justifyContent:'flex-end' }}>
+              <button onClick={()=>setShowForm(false)} style={{ background:'transparent', border:`1px solid ${C.border}`, color:C.textSub, borderRadius:8, padding:'8px 14px', fontSize:13, fontFamily:F.body }}>Cancelar</button>
+              <button onClick={submit} style={{ background:C.accent, color:'#fff', border:'none', borderRadius:8, padding:'8px 18px', fontSize:13, fontWeight:600, fontFamily:F.body }}>Solicitar</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {isAdmin && (
+        <div style={{ display:'flex', gap:4, marginBottom:16, background:C.bgCard, borderRadius:10, padding:4, border:`1px solid ${C.border}`, width:'fit-content' }}>
+          {[['mis','Mis solicitudes'],['todas','Todas']].map(([k,l])=>(
+            <button key={k} onClick={()=>setActiveTab(k)} style={{ background:activeTab===k?C.accent:'transparent', color:activeTab===k?'#fff':C.textSub, border:'none', borderRadius:7, padding:'7px 16px', fontSize:13, fontWeight:activeTab===k?600:400, fontFamily:F.body, cursor:'pointer' }}>{l}</button>
+          ))}
+        </div>
+      )}
+      <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+        {list.map((r,i)=>{
+          const u=userById(r.userId);
+          return (
+            <div key={r.id} style={{ background:C.bgCard, borderRadius:14, padding:18, border:`1px solid ${C.border}`, display:'flex', alignItems:'center', gap:16, animation:`fadeUp .3s ease ${i*0.04}s both`, flexWrap:'wrap' }}>
+              {activeTab==='todas'&&<Avatar name={u.name} size={36}/>}
+              <div style={{ flex:1, minWidth:0 }}>
+                {activeTab==='todas'&&<div style={{ fontWeight:600, fontSize:14, marginBottom:2 }}>{u.name}</div>}
+                <div style={{ fontSize:14, fontWeight:600 }}>{r.type}</div>
+                <div style={{ fontSize:13, color:C.textSub }}>{r.startDate} → {r.endDate} · {r.days} día(s)</div>
+                {r.note&&<div style={{ fontSize:12, color:C.textSub, marginTop:2, fontStyle:'italic' }}>"{r.note}"</div>}
+              </div>
+              <div style={{ display:'flex', gap:8, alignItems:'center', flexShrink:0 }}>
+                <span style={{ fontSize:12, fontWeight:700, background:`${statusColors[r.status]}22`, color:statusColors[r.status], borderRadius:20, padding:'4px 12px' }}>{statusLabels[r.status]}</span>
+                {isAdmin&&r.status==='pending'&&activeTab==='todas'&&(
+                  <>
+                    <button onClick={()=>approve(r.id)} style={{ background:`${C.success}22`, color:C.success, border:`1px solid ${C.success}`, borderRadius:6, padding:'4px 10px', fontSize:13, fontWeight:600, fontFamily:F.body, cursor:'pointer' }}>✓</button>
+                    <button onClick={()=>reject(r.id)}  style={{ background:`${C.danger}22`,  color:C.danger,  border:`1px solid ${C.danger}`,  borderRadius:6, padding:'4px 10px', fontSize:13, fontWeight:600, fontFamily:F.body, cursor:'pointer' }}>✗</button>
+                  </>
+                )}
+              </div>
+            </div>
+          );
+        })}
+        {list.length===0&&<div style={{ textAlign:'center', color:C.textSub, padding:40 }}>No hay solicitudes</div>}
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// DESEMPEÑO MODULE
+// ═══════════════════════════════════════════════════════════════════════════════
+function DesempenoModule({ me }) {
+  const [perf] = useState(SEED_PERFORMANCE);
+  const [period, setPeriod] = useState('Q2 2026');
+  const periods = [...new Set(perf.map(p=>p.period))];
+  const myPerf = perf.find(p=>p.userId===me.id&&p.period===period);
+
+  const ScoreBar = ({ label, score, color }) => (
+    <div style={{ marginBottom:14 }}>
+      <div style={{ display:'flex', justifyContent:'space-between', marginBottom:6 }}>
+        <span style={{ fontSize:13, color:C.textSub }}>{label}</span>
+        <span style={{ fontSize:13, fontWeight:700, color:score?color:C.textSub }}>{score?`${score}/5.0`:'Pendiente'}</span>
+      </div>
+      <div style={{ height:6, background:C.bgInput, borderRadius:3 }}>
+        <div style={{ height:6, background:score?color:C.border, borderRadius:3, width:`${score?(score/5)*100:0}%`, transition:'width .5s ease' }}/>
+      </div>
+    </div>
+  );
+
+  return (
+    <div style={{ padding:'24px 16px', maxWidth:760, margin:'0 auto' }}>
+      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:20, flexWrap:'wrap', gap:12 }}>
+        <div>
+          <h2 style={{ fontFamily:F.head, fontSize:22, fontWeight:700 }}>Desempeño</h2>
+          <p style={{ fontSize:13, color:C.textSub, marginTop:2 }}>Evaluaciones de rendimiento por periodo</p>
+        </div>
+        <div style={{ display:'flex', gap:6 }}>
+          {periods.map(p=><button key={p} onClick={()=>setPeriod(p)} style={{ background:period===p?C.accent:C.bgCard, color:period===p?'#fff':C.textSub, border:`1px solid ${period===p?C.accent:C.border}`, borderRadius:8, padding:'7px 14px', fontSize:13, fontFamily:F.body, cursor:'pointer' }}>{p}</button>)}
+        </div>
+      </div>
+      {myPerf ? (
+        <>
+          <div style={{ background:myPerf.status==='completed'?`${C.success}22`:myPerf.status==='in_progress'?`${C.warning}22`:`${C.textSub}22`, border:`1px solid ${myPerf.status==='completed'?C.success:myPerf.status==='in_progress'?C.warning:C.border}`, borderRadius:12, padding:'14px 20px', marginBottom:20, display:'flex', alignItems:'center', gap:10 }}>
+            <span style={{ fontSize:24 }}>{myPerf.status==='completed'?'✅':myPerf.status==='in_progress'?'⏳':'🔔'}</span>
+            <div>
+              <div style={{ fontWeight:600, fontSize:14 }}>{myPerf.status==='completed'?'Evaluación completada':myPerf.status==='in_progress'?'Evaluación en progreso':'Evaluación pendiente'}</div>
+              <div style={{ fontSize:12, color:C.textSub }}>{myPerf.status==='pending'?'Aún no ha comenzado tu evaluación para este periodo':myPerf.status==='in_progress'?'La evaluación está en curso':'Todos los scores han sido registrados'}</div>
+            </div>
+          </div>
+          {myPerf.finalScore&&(
+            <div style={{ background:C.bgCard, borderRadius:16, padding:24, border:`1px solid ${C.border}`, marginBottom:20, textAlign:'center' }}>
+              <div style={{ fontSize:13, color:C.textSub, marginBottom:6 }}>Calificación final {period}</div>
+              <div style={{ fontFamily:F.head, fontSize:52, fontWeight:800, color:C.accent }}>{myPerf.finalScore}</div>
+              <div style={{ fontSize:14, color:C.textSub }}>de 5.0 puntos</div>
+            </div>
+          )}
+          <div style={{ background:C.bgCard, borderRadius:16, padding:24, border:`1px solid ${C.border}`, marginBottom:20 }}>
+            <h3 style={{ fontFamily:F.head, fontSize:15, fontWeight:700, marginBottom:20 }}>Scores por evaluador</h3>
+            <ScoreBar label="Autoevaluación"        score={myPerf.selfScore}    color={C.accent}/>
+            <ScoreBar label="Evaluación del jefe"   score={myPerf.managerScore} color={C.success}/>
+            {myPerf.finalScore&&<ScoreBar label="Score final" score={myPerf.finalScore} color={C.warning}/>}
+          </div>
+          {myPerf.strengths&&(
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16 }}>
+              <div style={{ background:C.bgCard, borderRadius:16, padding:20, border:`1px solid ${C.border}` }}>
+                <div style={{ fontSize:13, fontWeight:700, color:C.success, marginBottom:10 }}>💪 Fortalezas</div>
+                <p style={{ fontSize:14, color:C.textSub, lineHeight:1.7 }}>{myPerf.strengths}</p>
+              </div>
+              <div style={{ background:C.bgCard, borderRadius:16, padding:20, border:`1px solid ${C.border}` }}>
+                <div style={{ fontSize:13, fontWeight:700, color:C.warning, marginBottom:10 }}>🚀 Áreas de mejora</div>
+                <p style={{ fontSize:14, color:C.textSub, lineHeight:1.7 }}>{myPerf.areas}</p>
+              </div>
+            </div>
+          )}
+        </>
+      ) : (
+        <div style={{ background:C.bgCard, borderRadius:16, padding:40, border:`1px solid ${C.border}`, textAlign:'center', color:C.textSub }}>
+          <div style={{ fontSize:40, marginBottom:12 }}>📊</div>
+          <div style={{ fontSize:16, fontWeight:600, marginBottom:6 }}>Sin evaluación para {period}</div>
+          <div style={{ fontSize:14 }}>Tu evaluación de desempeño para este periodo aún no ha comenzado.</div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// OBJETIVOS MODULE
+// ═══════════════════════════════════════════════════════════════════════════════
+function ObjetivosModule({ me, toast }) {
+  const [objectives, setObjectives] = useState(SEED_OBJECTIVES);
+  const [filter, setFilter] = useState('all');
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({ title:'', type:'individual', dueDate:'', krText:'' });
+  const userById = id => SEED_USERS.find(u=>u.id===id)||{ name:'Usuario' };
+
+  const submit = () => {
+    if (!form.title.trim()) { toast('Escribe un objetivo','error'); return; }
+    const krs = form.krText.split('\n').filter(l=>l.trim()).map((t,i)=>({ id:`kr${Date.now()}${i}`, title:t.trim(), progress:0 }));
+    setObjectives(p=>[...p,{ id:`ob${Date.now()}`, title:form.title, owner:me.id, type:form.type, progress:0, dueDate:form.dueDate, keyResults:krs.length?krs:[{ id:`kr${Date.now()}`, title:'Completar objetivo', progress:0 }] }]);
+    setForm({ title:'', type:'individual', dueDate:'', krText:'' }); setShowForm(false); toast('Objetivo creado');
+  };
+
+  const ProgressBar = ({ value, color=C.accent }) => (
+    <div style={{ height:6, background:C.bgInput, borderRadius:3, overflow:'hidden' }}>
+      <div style={{ height:6, background:color, borderRadius:3, width:`${value}%`, transition:'width .5s ease' }}/>
+    </div>
+  );
+
+  const filtered = objectives.filter(o=>filter==='all'||o.type===filter);
+
+  return (
+    <div style={{ padding:'24px 16px', maxWidth:820, margin:'0 auto' }}>
+      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:20, flexWrap:'wrap', gap:12 }}>
+        <div>
+          <h2 style={{ fontFamily:F.head, fontSize:22, fontWeight:700 }}>Objetivos</h2>
+          <p style={{ fontSize:13, color:C.textSub, marginTop:2 }}>OKRs del equipo e individuales</p>
+        </div>
+        <button onClick={()=>setShowForm(!showForm)} style={{ display:'flex', alignItems:'center', gap:6, background:C.accent, color:'#fff', border:'none', borderRadius:8, padding:'9px 16px', fontSize:14, fontWeight:600, fontFamily:F.body, cursor:'pointer' }}><IcPlus s={15}/> Nuevo objetivo</button>
+      </div>
+      {showForm&&(
+        <div style={{ background:C.bgCard, borderRadius:16, padding:24, border:`1px solid ${C.border}`, marginBottom:20, animation:'fadeUp .2s ease' }}>
+          <h3 style={{ fontFamily:F.head, fontSize:15, fontWeight:700, marginBottom:14 }}>Nuevo objetivo</h3>
+          <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+            <input value={form.title} onChange={e=>setForm(p=>({...p,title:e.target.value}))} placeholder="¿Cuál es tu objetivo?" style={{ background:C.bgInput, border:`1px solid ${C.border}`, borderRadius:8, padding:'9px 12px', fontSize:14, color:C.text, fontFamily:F.body }}/>
+            <div style={{ display:'flex', gap:10 }}>
+              <select value={form.type} onChange={e=>setForm(p=>({...p,type:e.target.value}))} style={{ flex:1, background:C.bgInput, border:`1px solid ${C.border}`, borderRadius:8, padding:'9px 12px', fontSize:14, color:C.text, fontFamily:F.body }}>
+                <option value="individual">Individual</option><option value="equipo">Equipo</option>
+              </select>
+              <input type="date" value={form.dueDate} onChange={e=>setForm(p=>({...p,dueDate:e.target.value}))} style={{ flex:1, background:C.bgInput, border:`1px solid ${C.border}`, borderRadius:8, padding:'9px 12px', fontSize:14, color:C.text, fontFamily:F.body }}/>
+            </div>
+            <div>
+              <label style={{ display:'block', fontSize:12, color:C.textSub, marginBottom:4 }}>Resultados clave (uno por línea)</label>
+              <textarea value={form.krText} onChange={e=>setForm(p=>({...p,krText:e.target.value}))} placeholder="Alcanzar 1000 usuarios&#10;Reducir tiempo de carga" rows={3} style={{ width:'100%', background:C.bgInput, border:`1px solid ${C.border}`, borderRadius:8, padding:'9px 12px', fontSize:14, color:C.text, fontFamily:F.body, resize:'none' }}/>
+            </div>
+            <div style={{ display:'flex', gap:10, justifyContent:'flex-end' }}>
+              <button onClick={()=>setShowForm(false)} style={{ background:'transparent', border:`1px solid ${C.border}`, color:C.textSub, borderRadius:8, padding:'8px 14px', fontSize:13, fontFamily:F.body }}>Cancelar</button>
+              <button onClick={submit} style={{ background:C.accent, color:'#fff', border:'none', borderRadius:8, padding:'8px 18px', fontSize:13, fontWeight:600, fontFamily:F.body }}>Crear</button>
+            </div>
+          </div>
+        </div>
+      )}
+      <div style={{ display:'flex', gap:6, marginBottom:20 }}>
+        {[['all','Todos'],['equipo','Equipo'],['individual','Individual']].map(([k,l])=>(
+          <button key={k} onClick={()=>setFilter(k)} style={{ background:filter===k?C.accent:C.bgCard, color:filter===k?'#fff':C.textSub, border:`1px solid ${filter===k?C.accent:C.border}`, borderRadius:8, padding:'7px 14px', fontSize:13, fontFamily:F.body, cursor:'pointer' }}>{l}</button>
+        ))}
+      </div>
+      <div style={{ display:'flex', flexDirection:'column', gap:16 }}>
+        {filtered.map((obj,i)=>{
+          const owner=userById(obj.owner);
+          const avg=obj.keyResults.reduce((s,kr)=>s+kr.progress,0)/obj.keyResults.length;
+          const color=avg>=80?C.success:avg>=50?C.warning:C.accent;
+          return (
+            <div key={obj.id} style={{ background:C.bgCard, borderRadius:16, padding:24, border:`1px solid ${C.border}`, animation:`fadeUp .3s ease ${i*0.04}s both` }}>
+              <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:12, marginBottom:14, flexWrap:'wrap' }}>
+                <div style={{ flex:1 }}>
+                  <div style={{ display:'flex', gap:6, marginBottom:8, flexWrap:'wrap' }}>
+                    <span style={{ fontSize:11, fontWeight:700, background:obj.type==='equipo'?C.accentLight:`${C.success}22`, color:obj.type==='equipo'?C.accent:C.success, borderRadius:20, padding:'2px 8px' }}>{obj.type==='equipo'?'🏢 Equipo':'👤 Individual'}</span>
+                    {obj.dueDate&&<span style={{ fontSize:11, color:C.textSub, background:C.bgInput, borderRadius:20, padding:'2px 8px' }}>📅 {obj.dueDate}</span>}
+                  </div>
+                  <h3 style={{ fontFamily:F.head, fontSize:16, fontWeight:700 }}>{obj.title}</h3>
+                </div>
+                <div style={{ textAlign:'right' }}>
+                  <div style={{ fontFamily:F.head, fontSize:26, fontWeight:800, color }}>{Math.round(avg)}%</div>
+                  <div style={{ display:'flex', alignItems:'center', gap:6, justifyContent:'flex-end' }}><Avatar name={owner.name} size={18}/><span style={{ fontSize:12, color:C.textSub }}>{owner.name.split(' ')[0]}</span></div>
+                </div>
+              </div>
+              <ProgressBar value={avg} color={color}/>
+              <div style={{ marginTop:14, display:'flex', flexDirection:'column', gap:8 }}>
+                {obj.keyResults.map(kr=>(
+                  <div key={kr.id} style={{ display:'flex', alignItems:'center', gap:10 }}>
+                    <div style={{ width:8, height:8, borderRadius:'50%', background:kr.progress>=100?C.success:C.border, flexShrink:0 }}/>
+                    <span style={{ flex:1, fontSize:13, color:kr.progress>=100?C.text:C.textSub }}>{kr.title}</span>
+                    <span style={{ fontSize:12, fontWeight:600, color, flexShrink:0 }}>{kr.progress}%</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ORGANIGRAMA MODULE
+// ═══════════════════════════════════════════════════════════════════════════════
+function OrganigramaModule({ me, onViewUser }) {
+  const buildTree = (managerId) => SEED_USERS.filter(u=>u.managerId===managerId).map(u=>({ ...u, children:buildTree(u.id) }));
+  const tree = buildTree(null);
+
+  const OrgNode = ({ node, depth=0 }) => {
+    const [collapsed, setCollapsed] = useState(false);
+    const hasChildren = node.children.length>0;
+    return (
+      <div style={{ display:'flex', flexDirection:'column', alignItems:'center' }}>
+        <div style={{ position:'relative' }}>
+          <div onClick={()=>onViewUser(node.id)} style={{ background:node.id===me.id?C.accentLight:C.bgCard, border:`1px solid ${node.id===me.id?C.accent:C.border}`, borderRadius:12, padding:'12px 14px', cursor:'pointer', width:150, textAlign:'center', transition:'all .15s', boxShadow:node.id===me.id?`0 0 0 2px ${C.accent}33`:'none' }}
+            onMouseEnter={e=>{ e.currentTarget.style.borderColor=C.accent; e.currentTarget.style.background=C.accentLight; }}
+            onMouseLeave={e=>{ e.currentTarget.style.borderColor=node.id===me.id?C.accent:C.border; e.currentTarget.style.background=node.id===me.id?C.accentLight:C.bgCard; }}>
+            <div style={{ display:'flex', justifyContent:'center', marginBottom:6 }}><Avatar name={node.name} src={node.avatar} size={38} online={node.status}/></div>
+            <div style={{ fontWeight:700, fontSize:12, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{node.name}</div>
+            <div style={{ fontSize:11, color:C.textSub, marginTop:2, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{node.role}</div>
+            {node.id===me.id&&<div style={{ fontSize:10, color:C.accent, marginTop:3, fontWeight:600 }}>Tú</div>}
+          </div>
+          {hasChildren&&(
+            <button onClick={()=>setCollapsed(p=>!p)} style={{ position:'absolute', bottom:-10, left:'50%', transform:'translateX(-50%)', width:20, height:20, borderRadius:'50%', background:C.bgSidebar, border:`1px solid ${C.border}`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:11, color:C.textSub, cursor:'pointer', zIndex:1 }}>
+              {collapsed?'+':'−'}
+            </button>
+          )}
+        </div>
+        {hasChildren&&!collapsed&&(
+          <div style={{ display:'flex', flexDirection:'column', alignItems:'center', marginTop:20 }}>
+            <div style={{ width:1, height:10, background:C.border }}/>
+            <div style={{ display:'flex', gap:12, position:'relative' }}>
+              {node.children.length>1&&<div style={{ position:'absolute', top:0, left:75, right:75, height:1, background:C.border }}/>}
+              {node.children.map(child=>(
+                <div key={child.id} style={{ display:'flex', flexDirection:'column', alignItems:'center' }}>
+                  <div style={{ width:1, height:10, background:C.border }}/>
+                  <OrgNode node={child} depth={depth+1}/>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  return (
+    <div style={{ padding:'24px 16px', overflowX:'auto' }}>
+      <h2 style={{ fontFamily:F.head, fontSize:22, fontWeight:700, marginBottom:4 }}>Organigrama</h2>
+      <p style={{ fontSize:13, color:C.textSub, marginBottom:24 }}>Haz clic en cualquier persona para ver su perfil</p>
+      <div style={{ minWidth:700, overflowX:'auto', padding:'10px 20px 40px', display:'flex', justifyContent:'center' }}>
+        {tree.map(root=><OrgNode key={root.id} node={root}/>)}
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ONBOARDING MODULE
+// ═══════════════════════════════════════════════════════════════════════════════
+function OnboardingModule({ me, toast }) {
+  const [tasks, setTasks] = useState(ONBOARDING_TASKS);
+  const completed = tasks.filter(t=>t.done).length;
+  const pct = Math.round((completed/tasks.length)*100);
+
+  const toggle = (id) => {
+    setTasks(p=>p.map(t=>t.id===id?{...t,done:!t.done}:t));
+    const t = tasks.find(x=>x.id===id);
+    if (!t.done) toast(`"${t.title}" completado ✅`);
+  };
+
+  return (
+    <div style={{ padding:'24px 16px', maxWidth:680, margin:'0 auto' }}>
+      <h2 style={{ fontFamily:F.head, fontSize:22, fontWeight:700, marginBottom:4 }}>Onboarding</h2>
+      <p style={{ fontSize:13, color:C.textSub, marginBottom:20 }}>Tu guía de incorporación al equipo</p>
+      <div style={{ background:C.bgCard, borderRadius:16, padding:24, border:`1px solid ${C.border}`, marginBottom:24 }}>
+        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-end', marginBottom:12 }}>
+          <div>
+            <div style={{ fontFamily:F.head, fontSize:32, fontWeight:800, color:C.accent }}>{pct}%</div>
+            <div style={{ fontSize:13, color:C.textSub }}>{completed} de {tasks.length} tareas completadas</div>
+          </div>
+          {pct===100&&<div style={{ fontSize:32 }}>🎉</div>}
+        </div>
+        <div style={{ height:8, background:C.bgInput, borderRadius:4 }}>
+          <div style={{ height:8, background:pct===100?C.success:C.accent, borderRadius:4, width:`${pct}%`, transition:'width .5s ease' }}/>
+        </div>
+        {pct===100&&<p style={{ fontSize:14, color:C.success, marginTop:12, fontWeight:600 }}>¡Felicidades! Completaste tu onboarding.</p>}
+      </div>
+      <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+        {tasks.map((t,i)=>(
+          <div key={t.id} onClick={()=>toggle(t.id)} style={{ background:C.bgCard, borderRadius:14, padding:'16px 20px', border:`1px solid ${t.done?C.success+'44':C.border}`, display:'flex', alignItems:'center', gap:16, cursor:'pointer', animation:`fadeUp .3s ease ${i*0.04}s both`, opacity:t.done?0.8:1, transition:'all .15s' }}>
+            <div style={{ fontSize:24, flexShrink:0 }}>{t.icon}</div>
+            <div style={{ flex:1, minWidth:0 }}>
+              <div style={{ fontWeight:600, fontSize:14, textDecoration:t.done?'line-through':'none', color:t.done?C.textSub:C.text }}>{t.title}</div>
+              <div style={{ fontSize:12, color:C.textSub, marginTop:2 }}>{t.desc}</div>
+            </div>
+            <div style={{ width:24, height:24, borderRadius:'50%', border:`2px solid ${t.done?C.success:C.border}`, background:t.done?C.success:'transparent', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+              {t.done&&<IcCheck s={13}/>}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // MAIN WORKSPACE APP
 // ═══════════════════════════════════════════════════════════════════════════════
 export default function ConnectSpace() {
@@ -1507,13 +2328,20 @@ export default function ConnectSpace() {
   if (!user) return <AuthScreen onLogin={setUser} />;
 
   const NAV = [
-    { id:'feed',          label:'Inicio',          icon:<IcHome s={20}/> },
-    { id:'chat',          label:'Mensajes',         icon:<IcMsg s={20}/> },
-    { id:'directory',     label:'Directorio',       icon:<IcUsers s={20}/> },
-    { id:'kudos',         label:'Reconocimientos',  icon:<IcStar s={20}/> },
-    { id:'calendar',      label:'Calendario',       icon:<IcCalendar s={20}/> },
-    { id:'announcements', label:'Anuncios',          icon:<IcPin s={20}/> },
-    { id:'profile',       label:'Mi Perfil',         icon:<Avatar name={user.name} size={22}/> },
+    { id:'feed',          label:'Inicio',              icon:<IcHome s={20}/> },
+    { id:'chat',          label:'Mensajes',             icon:<IcMsg s={20}/> },
+    { id:'directory',     label:'Directorio',           icon:<IcUsers s={20}/> },
+    { id:'grupos',        label:'Grupos',               icon:<IcUsers s={20}/> },
+    { id:'kudos',         label:'Reconocimientos',      icon:<IcStar s={20}/> },
+    { id:'calendar',      label:'Calendario',           icon:<IcCalendar s={20}/> },
+    { id:'announcements', label:'Anuncios',              icon:<IcPin s={20}/> },
+    { id:'biblioteca',    label:'Biblioteca',            icon:<IcBook s={20}/> },
+    { id:'vacaciones',    label:'Vacaciones',            icon:<IcUmbrella s={20}/> },
+    { id:'desempeno',     label:'Desempeño',             icon:<IcBriefcase s={20}/> },
+    { id:'objetivos',     label:'Objetivos',             icon:<IcTarget s={20}/> },
+    { id:'organigrama',   label:'Organigrama',           icon:<IcSitemap s={20}/> },
+    { id:'onboarding',    label:'Onboarding',            icon:<IcClipboard s={20}/> },
+    { id:'profile',       label:'Mi Perfil',             icon:<Avatar name={user.name} size={22}/> },
   ];
 
   const goToUser = (uid) => { setViewingUser(uid); };
@@ -1528,9 +2356,16 @@ export default function ConnectSpace() {
       case 'feed':          return <FeedModule {...props}/>;
       case 'chat':          return <ChatModule {...props}/>;
       case 'directory':     return <DirectoryModule {...props}/>;
+      case 'grupos':        return <GruposModule {...props}/>;
       case 'kudos':         return <KudosModule {...props}/>;
       case 'calendar':      return <CalendarModule {...props}/>;
       case 'announcements': return <AnnouncementsModule {...props}/>;
+      case 'biblioteca':    return <BibliotecaModule {...props}/>;
+      case 'vacaciones':    return <VacacionesModule {...props}/>;
+      case 'desempeno':     return <DesempenoModule {...props}/>;
+      case 'objetivos':     return <ObjetivosModule {...props}/>;
+      case 'organigrama':   return <OrganigramaModule {...props}/>;
+      case 'onboarding':    return <OnboardingModule {...props}/>;
       case 'profile':       return <ProfileModule {...props}/>;
       default:              return <FeedModule {...props}/>;
     }
