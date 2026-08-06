@@ -1,27 +1,33 @@
-import { PROVIDERS, detectPlatform } from './providers';
+import { fetchGoogleEvents, fetchMicrosoftEvents, detectPlatform } from './providers';
 import { buildMockEventsForDay } from '../data/mockEvents';
 
-const USE_MOCK_DATA = true; // pasa a false cuando haya proveedores conectados
-
-export async function getEventsForDay(day) {
-  if (USE_MOCK_DATA) {
-    return buildMockEventsForDay(day)
-      .map((e) => ({ ...e, platform: detectPlatform(e.joinUrl) }))
-      .sort((a, b) => a.start - b.start);
-  }
-
-  const results = await Promise.all(
-    Object.values(PROVIDERS)
-      .filter((p) => p.connected)
-      .map((p) => p.getEvents({ from: day }))
-  );
-
-  return results
-    .flat()
-    .map((e) => ({ ...e, platform: e.platform || detectPlatform(e.joinUrl) }))
-    .sort((a, b) => a.start - b.start);
+function dayRange(day) {
+  const from = new Date(day);
+  from.setHours(0, 0, 0, 0);
+  const to = new Date(day);
+  to.setHours(23, 59, 59, 999);
+  return { from, to };
 }
 
-export function getConnectionStatus() {
-  return Object.values(PROVIDERS).map((p) => ({ id: p.id, label: p.label, connected: p.connected }));
+export async function getEventsForDay(day, connections) {
+  if (!connections.google && !connections.microsoft) {
+    const events = buildMockEventsForDay(day)
+      .map((e) => ({ ...e, platform: detectPlatform(e.joinUrl) }))
+      .sort((a, b) => a.start - b.start);
+    return { events, errors: [] };
+  }
+
+  const range = dayRange(day);
+  const tasks = [];
+  if (connections.google) tasks.push(fetchGoogleEvents(range).catch((err) => ({ __error: err })));
+  if (connections.microsoft) tasks.push(fetchMicrosoftEvents(range).catch((err) => ({ __error: err })));
+
+  const results = await Promise.all(tasks);
+  const errors = results.filter((r) => r && r.__error).map((r) => r.__error);
+  const events = results
+    .filter((r) => Array.isArray(r))
+    .flat()
+    .sort((a, b) => a.start - b.start);
+
+  return { events, errors };
 }
