@@ -3,7 +3,7 @@ import DateStrip from './components/DateStrip';
 import CallList from './components/CallList';
 import ProviderStatus from './components/ProviderStatus';
 import { getEventsForDay } from './lib/calendarService';
-import { connectGoogle, disconnectGoogle, getGoogleToken, isGoogleConfigured } from './lib/googleAuth';
+import { getGoogleIcalStatus } from './lib/googleIcal';
 import { connectMicrosoft, disconnectMicrosoft, getMicrosoftToken, isMicrosoftConfigured } from './lib/microsoftAuth';
 
 const DATE_LABEL_OPTS = { weekday: 'long', day: 'numeric', month: 'long' };
@@ -16,9 +16,13 @@ export default function App() {
   const [connections, setConnections] = useState({ google: false, microsoft: false });
   const [connectingId, setConnectingId] = useState(null);
 
-  // Al cargar, revisa si ya había una sesión activa (token en sessionStorage / MSAL cache).
+  // Google no requiere login: el servidor ya tiene el enlace secreto de
+  // Google Calendar (ver calls-app/api/calendar.js), solo preguntamos si
+  // está configurado. Microsoft sí es login normal (MSAL).
   useEffect(() => {
-    setConnections((c) => ({ ...c, google: Boolean(getGoogleToken()) }));
+    getGoogleIcalStatus().then((configured) => {
+      setConnections((c) => ({ ...c, google: configured }));
+    });
     getMicrosoftToken().then((token) => {
       setConnections((c) => ({ ...c, microsoft: Boolean(token) }));
     });
@@ -37,11 +41,11 @@ export default function App() {
   }, [selectedDate, connections]);
 
   const handleConnect = useCallback(async (id) => {
+    if (id !== 'microsoft') return; // Google se detecta solo, no tiene botón de login
     setConnectingId(id);
     try {
-      if (id === 'google') await connectGoogle();
-      if (id === 'microsoft') await connectMicrosoft();
-      setConnections((c) => ({ ...c, [id]: true }));
+      await connectMicrosoft();
+      setConnections((c) => ({ ...c, microsoft: true }));
     } catch (err) {
       setErrors((prev) => [...prev, err]);
     } finally {
@@ -50,14 +54,14 @@ export default function App() {
   }, []);
 
   const handleDisconnect = useCallback(async (id) => {
-    if (id === 'google') disconnectGoogle();
-    if (id === 'microsoft') await disconnectMicrosoft();
-    setConnections((c) => ({ ...c, [id]: false }));
+    if (id !== 'microsoft') return;
+    await disconnectMicrosoft();
+    setConnections((c) => ({ ...c, microsoft: false }));
   }, []);
 
   const providers = useMemo(
     () => [
-      { id: 'google', label: 'Google Calendar', configured: isGoogleConfigured(), connected: connections.google },
+      { id: 'google', label: 'Google Calendar', configured: true, connected: connections.google, autoManaged: true },
       { id: 'microsoft', label: 'Microsoft 365 / Teams', configured: isMicrosoftConfigured(), connected: connections.microsoft },
     ],
     [connections]
@@ -96,7 +100,9 @@ export default function App() {
           onShiftWeek={(dir) => setWeekOffset((o) => o + dir)}
         />
         {usingMockData && (
-          <div className="mock-banner">Mostrando datos de ejemplo — conecta Google o Microsoft arriba para ver tus llamadas reales.</div>
+          <div className="mock-banner">
+            Mostrando datos de ejemplo — configura el enlace secreto de Google Calendar en Vercel (ver README) para ver tus llamadas reales.
+          </div>
         )}
         <CallList events={events} now={new Date()} />
       </main>

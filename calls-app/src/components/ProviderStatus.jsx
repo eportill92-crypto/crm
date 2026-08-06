@@ -7,14 +7,18 @@ export default function ProviderStatus({ providers, connectingId, errors, onConn
           <span className="provider-label">{p.label}</span>
           <span className="provider-state">
             {!p.configured
-              ? 'Falta configurar Client ID'
+              ? p.autoManaged
+                ? 'Falta configurar GOOGLE_ICAL_URL en Vercel'
+                : 'Falta configurar Client ID'
               : connectingId === p.id
               ? 'Conectando…'
               : p.connected
               ? 'Conectado'
+              : p.autoManaged
+              ? 'No configurado'
               : 'No conectado'}
           </span>
-          {p.configured && (
+          {!p.autoManaged && p.configured && (
             <button
               className="connect-button"
               disabled={connectingId === p.id}
@@ -23,7 +27,7 @@ export default function ProviderStatus({ providers, connectingId, errors, onConn
               {p.connected ? 'Desconectar' : 'Conectar'}
             </button>
           )}
-          {!p.configured && (
+          {!p.autoManaged && !p.configured && (
             <button className="connect-button" disabled title="Agrega el Client ID en .env — ver README.md">
               Conectar
             </button>

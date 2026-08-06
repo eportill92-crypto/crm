@@ -1,4 +1,5 @@
-import { fetchGoogleEvents, fetchMicrosoftEvents, detectPlatform } from './providers';
+import { fetchMicrosoftEvents, detectPlatform } from './providers';
+import { fetchGoogleIcalEvents } from './googleIcal';
 import { buildMockEventsForDay } from '../data/mockEvents';
 
 function dayRange(day) {
@@ -19,7 +20,7 @@ export async function getEventsForDay(day, connections) {
 
   const range = dayRange(day);
   const tasks = [];
-  if (connections.google) tasks.push(fetchGoogleEvents(range).catch((err) => ({ __error: err })));
+  if (connections.google) tasks.push(fetchGoogleIcalEvents(range).catch((err) => ({ __error: err })));
   if (connections.microsoft) tasks.push(fetchMicrosoftEvents(range).catch((err) => ({ __error: err })));
 
   const results = await Promise.all(tasks);
