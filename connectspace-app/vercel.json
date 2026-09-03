@@ -1,0 +1,5 @@
+{
+  "buildCommand": "SKIP_PREFLIGHT_CHECK=true CI=false npm run build",
+  "outputDirectory": "build",
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+}
